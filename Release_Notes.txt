@@ -1,0 +1,41 @@
+yad2xx Release Notes
+====================
+
+July 30, 2018
+
+Stephen Davies
+
+Version 1.0
+-----------
+July 30, 2018
+
+* Bumped Java version to 8
+* Added support for infrequently used functions on Windows platform
+* Improved Javadoc comments. Maven javadoc now completes without warnings
+* Fixed buffer overflow problem in Mpsse (and Spi/I2C etc) (ticket 7)
+* Added sample code for DotStar LED (ticket 6)
+
+Version 0.4
+-----------
+April 2016
+
+The impetus for this release was the use of an FTDI chip to read an 
+SPI EEPROM (a CAT93C46). This required refactoring around the Mpsse
+package and class.
+
+Sample program SpiEEPROMSample demonstrates the Spi class. Spi operates in 
+Mode 0 (CPOL=0) with CS signal active high. 
+
+Version 0.3
+-----------
+
+Add some missing D2XX functions required for serial port management.
+
+Version 0.2
+-----------
+
+Adds support for various core D2XX functionality. Examples include serial port
+operations and EEPROM functions.
+
+See the wiki page https://sourceforge.net/p/yad2xx/wiki/Function%20Index/ for
+details.

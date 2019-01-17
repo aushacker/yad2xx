@@ -1,0 +1,43 @@
+yad2xx Dev Environment
+======================
+
+Describes development environment evolution.
+
+Version 1.0
+-----------
+November 2016
+
+OS X 10.11.6 (El Capitan) 
+- Java 8 (1.8.0_112)
+- XCode 8.0 (contains gcc)
+- Apache Maven 3.3.9
+- FTDI OS X D2XX Driver 1.2.2
+- Eclipse Mars.2 (4.5.2)
+
+Windows 7 (Inside VMWare Fusion 8.5.1 VM)
+- MinGW-w64
+- Java 8 (1.8.0_112)
+- gcc 6.2.0 (via WinGW-w64)
+- Apache Maven 3.3.9
+
+Version 0.4
+-----------
+April 2016
+
+- OS X 10.11.4 (El Capitan) 
+- Java 8 (1.8.0_92)
+- XCode 7.3 (contains gcc)
+- Apache Maven 3.3.3
+- FTDI OS X D2XX Driver 1.2.2
+- Eclipse Mars.2 (4.5.2)
+
+Version 0.3
+-----------
+July 2015
+
+- OS X 10.10.4 (Yosemite)
+- Java 8 (1.8.0_2?)
+- XCode ? (contains gcc)
+- Apache Maven 3.3.3
+- FTDI OS X D2XX Driver 1.2.2
+- Eclipse Kepler

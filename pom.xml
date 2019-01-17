@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>net.sf.yad2xx</groupId>
+	<artifactId>yad2xx</artifactId>
+	<version>1.0</version>
+
+	<packaging>pom</packaging>
+
+	<name>Yet Another JNI-D2XX Interface Library.</name>
+
+	<description>
+	   A Java Native Interface (JNI) library for the FTDI D2XX USB driver. 
+	</description>
+
+	<inceptionYear>2012</inceptionYear>
+	<url>https://sourceforge.net/projects/yad2xx/</url>
+
+	<licenses>
+		<license>
+			<name>GNU Lesser General Public License v3.0</name>
+			<url>http://www.gnu.org/licenses/lgpl.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<url>https://svn.code.sf.net/p/yad2xx/code/tags/REL-0.3</url>
+		<connection>scm:svn:https://svn.code.sf.net/p/yad2xx/code/tags/REL-0.3</connection>
+	</scm>
+
+	<issueManagement>
+		<system>SourceForge</system>
+		<url>https://sourceforge.net/p/yad2xx/tickets/</url>
+	</issueManagement>
+
+	<developers>
+		<developer>
+			<id>sjdavies</id>
+			<name>Stephen Davies</name>
+			<email>sjdavies@users.sourceforge.net</email>
+		</developer>
+	</developers>
+
+	<!-- Multi-module project, native libraries are included based on profile 
+		below. -->
+	<modules>
+		<module>yad2xxJava</module>
+	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<build>
+		<defaultGoal>install</defaultGoal>
+		<pluginManagement>
+
+			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.2</version>
+					<configuration>
+						<source>1.6</source>
+						<target>1.6</target>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-eclipse-plugin</artifactId>
+					<version>2.9</version>
+					<configuration>
+						<downloadJavadocs>true</downloadJavadocs>
+						<downloadSources>true</downloadSources>
+						<additionalProjectnatures>
+							<projectnature>org.eclipse.m2e.core.maven2Nature</projectnature>
+						</additionalProjectnatures>
+						<additionalBuildcommands>
+							<buildcommand>org.eclipse.m2e.core.maven2Builder</buildcommand>
+						</additionalBuildcommands>
+					</configuration>
+				</plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+                    <version>1.0-alpha-8</version>
+                </plugin>
+
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>Mac</id>
+			<activation>
+				<os>
+					<family>Mac</family>
+				</os>
+			</activation>
+
+			<modules>
+				<module>yad2xxJnilib</module>
+			</modules>
+
+		</profile>
+
+		<profile>
+			<id>Windows</id>
+			<activation>
+				<os>
+					<family>Windows</family>
+				</os>
+			</activation>
+
+			<modules>
+				<module>yad2xxDll</module>
+			</modules>
+
+		</profile>
+	</profiles>
+
+</project>
