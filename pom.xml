@@ -121,6 +121,20 @@
 			</modules>
 
 		</profile>
+
+		<profile>
+			<id>Linux</id>
+			<activation>
+				<os>
+					<family>unix</family>
+				</os>
+			</activation>
+
+			<modules>
+				<module>yad2xxSo</module>
+			</modules>
+
+		</profile>
 	</profiles>
 
 </project>
