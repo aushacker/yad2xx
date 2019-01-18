@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>net.sf.yad2xx</groupId>
 		<artifactId>yad2xx</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.0</version>
 	</parent>
 
 	<name>yad2xx - Linux Library</name>
