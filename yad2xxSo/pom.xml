@@ -57,6 +57,12 @@
 						</source>
 					</sources>
 
+					<compilerMiddleOptions>
+						<compilerStartOption>-fPIC</compilerStartOption>
+					</compilerMiddleOptions>
+					<linkerStartOptions>
+						<linkerStartOption>-shared</linkerStartOption>
+					</linkerStartOptions>
 					<linkerEndOptions>
 						<linkerStartOption>-lftd2xx -L/usr/local/lib</linkerStartOption>
 					</linkerEndOptions>
