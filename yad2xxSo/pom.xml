@@ -50,16 +50,16 @@
 							<directory>${env.JAVA_HOME}/include</directory>
 						</source>
 						<source>
-							<directory>${env.JAVA_HOME}/include/darwin</directory>
+							<directory>${env.JAVA_HOME}/include/linux</directory>
 						</source>
 						<source>
-							<directory>/usr/local/include</directory>
+							<directory>/opt/ftdi/current</directory>
 						</source>
 					</sources>
 
-					<linkerStartOptions>
-						<linkerStartOption>-dynamiclib -lftd2xx -L/usr/local/lib</linkerStartOption>
-					</linkerStartOptions>
+					<linkerEndOptions>
+						<linkerStartOption>-lftd2xx -L/usr/local/lib</linkerStartOption>
+					</linkerEndOptions>
 
 				</configuration>
 			</plugin>
