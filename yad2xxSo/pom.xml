@@ -13,7 +13,7 @@
 
 	<packaging>so</packaging>
 	
-	<artifactId>soFTDIInterface</artifactId>
+	<artifactId>libFTDIInterface</artifactId>
 	
 	<dependencies>
 
