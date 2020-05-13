@@ -9,9 +9,9 @@
 		<version>2.0</version>
 	</parent>
 
-	<artifactId>libFTDIInterface</artifactId>
+	<artifactId>libFT4222Interface</artifactId>
 
-	<name>yad2xx - OS X Library</name>
+	<name>yad2xx - OS X FT4222 Library</name>
 
 	<packaging>jnilib</packaging>
 
@@ -35,7 +35,7 @@
 				<configuration>
 				
 					<javahClassNames>
-						<javahClassName>net.sf.yad2xx.FTDIInterface</javahClassName>
+						<javahClassName>net.sf.yad2xx.ft4222.FT4222Interface</javahClassName>
 					</javahClassNames>
 					<javahVerbose>true</javahVerbose>
 					
@@ -43,7 +43,7 @@
 						<source>
 							<directory>../src/main/native</directory>
 							<fileNames>
-								<fileName>FTDIInterface.c</fileName>
+								<fileName>FT4222Interface.c</fileName>
 							</fileNames>
 						</source>
 						<source>
@@ -58,7 +58,7 @@
 					</sources>
 
 					<linkerStartOptions>
-						<linkerStartOption>-dynamiclib -lftd2xx -L/usr/local/lib</linkerStartOption>
+						<linkerStartOption>-dynamiclib -lft4222 -L/usr/local/lib</linkerStartOption>
 					</linkerStartOptions>
 
 				</configuration>

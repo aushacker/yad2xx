@@ -82,7 +82,7 @@ public class Device {
 	 * @param description		driver description
 	 * @param ftHandle
 	 */
-	Device(int index, int flags, int type, int id, int locationId, String serialNumber, String description, long ftHandle) {
+	protected Device(int index, int flags, int type, int id, int locationId, String serialNumber, String description, long ftHandle) {
 		this.index = index;
 		this.flags = flags;
 		this.type = type;
@@ -186,6 +186,16 @@ public class Device {
 	 */
 	public String getDriverVersion() throws FTDIException {
 		return FTDIInterface.formatVersion(FTDIInterface.getDriverVersionRaw(ftHandle));
+	}
+
+	/**
+	 * Useful for debugging only.
+	 * 
+	 * @return					device flags
+	 * @since   2.0
+	 */
+	public int getFlags() {
+		return flags;
 	}
 
 	/**

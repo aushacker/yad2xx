@@ -5,7 +5,7 @@
 
 	<groupId>net.sf.yad2xx</groupId>
 	<artifactId>yad2xx</artifactId>
-	<version>1.0</version>
+	<version>2.0</version>
 
 	<packaging>pom</packaging>
 
@@ -16,7 +16,7 @@
 	</description>
 
 	<inceptionYear>2012</inceptionYear>
-	<url>https://sourceforge.net/projects/yad2xx/</url>
+	<url>https://github.com/aushacker/yad2xx/</url>
 
 	<licenses>
 		<license>
@@ -27,20 +27,18 @@
 	</licenses>
 
 	<scm>
-		<url>https://svn.code.sf.net/p/yad2xx/code/tags/REL-0.3</url>
-		<connection>scm:svn:https://svn.code.sf.net/p/yad2xx/code/tags/REL-0.3</connection>
+		<url>https://github.com/aushacker/yad2xx.git</url>
 	</scm>
 
 	<issueManagement>
-		<system>SourceForge</system>
-		<url>https://sourceforge.net/p/yad2xx/tickets/</url>
+		<system>GitHub</system>
+		<url>https://github.com/aushacker/yad2xx/issues</url>
 	</issueManagement>
 
 	<developers>
 		<developer>
-			<id>sjdavies</id>
+			<id>aushacker</id>
 			<name>Stephen Davies</name>
-			<email>sjdavies@users.sourceforge.net</email>
 		</developer>
 	</developers>
 
@@ -52,6 +50,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 	<build>
@@ -59,15 +59,6 @@
 		<pluginManagement>
 
 			<plugins>
-				<plugin>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.2</version>
-					<configuration>
-						<source>1.6</source>
-						<target>1.6</target>
-					</configuration>
-				</plugin>
-
 				<plugin>
 					<artifactId>maven-eclipse-plugin</artifactId>
 					<version>2.9</version>
@@ -104,6 +95,7 @@
 
 			<modules>
 				<module>yad2xxJnilib</module>
+				<module>yad4222Jnilib</module>
 			</modules>
 
 		</profile>
