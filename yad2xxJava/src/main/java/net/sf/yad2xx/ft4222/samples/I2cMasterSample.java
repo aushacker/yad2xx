@@ -35,64 +35,70 @@ import net.sf.yad2xx.FTDIInterface;
  */
 public class I2cMasterSample {
 
-	public static void main(String[] args) {
+    /**
+     * I2C bus date rate.
+     */
+    private static final int BIT_RATE_400K = 400;
+
+    public static void main(String[] args) {
         try {
-        	List<FT4222Device> devices = selectDevices();
-        	
-        	if (!devices.isEmpty()) {
-        		FT4222Device dev = devices.get(0);
-        		
-        		System.out.println(dev);
-        		
-        		dev.open();
+            List<FT4222Device> devices = selectDevices();
 
-        	    System.out.println("Init FT4222 as I2C master");
-        	    dev.i2cMasterInit(400);
-        		
-        		int slaveAddr = 0x22;
-        		byte master_data[] = {0x1A, 0x2B, 0x3C, 0x4D};
-        		int sizeTransferred = 0;
-        		
-        	    System.out.printf("I2C master write data to the slave(%#x)... \n", slaveAddr);
-        		sizeTransferred = dev.i2cMasterWrite(slaveAddr, master_data);
-        	    System.out.printf("bytes written: %d\n", sizeTransferred);
-        		
-        	    System.out.printf("I2C master read data from the slave(%#x)... \n", slaveAddr);
-        		byte slave_data[] = dev.i2cMasterRead(slaveAddr, 4);
+            if (!devices.isEmpty()) {
+                FT4222Device dev = devices.get(0);
 
-        		System.out.print("  slave data: ");
-        	    for (int i = 0; i < slave_data.length; ++i) {
-        	        System.out.printf("%#x, ", slave_data[i]);
-        	    }
-        	    System.out.println();
+                System.out.println(dev);
 
-        	    System.out.println("UnInitialize FT4222");
-        		dev.unInitialize();
+                dev.open();
 
-        	    System.out.println("Close FT device");
+                System.out.println("Init FT4222 as I2C master");
+                dev.i2cMasterInit(BIT_RATE_400K);
+
+                int slaveAddr = 0x22;
+                byte master_data[] = { 0x1A, 0x2B, 0x3C, 0x4D };
+                int sizeTransferred = 0;
+
+                System.out.printf("I2C master write data to the slave(%#x)... \n",
+                        slaveAddr);
+                sizeTransferred = dev.i2cMasterWrite(slaveAddr, master_data);
+                System.out.printf("bytes written: %d\n", sizeTransferred);
+
+                System.out.printf("I2C master read data from the slave(%#x)... \n",
+                        slaveAddr);
+                byte slave_data[] = dev.i2cMasterRead(slaveAddr, 4);
+
+                System.out.print("  slave data: ");
+                for (int i = 0; i < slave_data.length; ++i) {
+                    System.out.printf("%#x, ", slave_data[i]);
+                }
+                System.out.println();
+
+                System.out.println("UnInitialize FT4222");
+                dev.unInitialize();
+
+                System.out.println("Close FT device");
                 dev.close();
 
-        	} else {
-        	    System.out.println("No FT4222 device is found!");	
-        	}
+            } else {
+                System.out.println("No FT4222 device is found!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        catch (Exception e) {
-        	e.printStackTrace();
+    }
+
+    /**
+     * Returns a list of attached FT4222 devices.
+     */
+    private static List<FT4222Device> selectDevices() throws FTDIException {
+        List<FT4222Device> devices = new ArrayList<>();
+
+        for (Device dev : FTDIInterface.getDevices()) {
+            if (dev instanceof FT4222Device) {
+                devices.add((FT4222Device) dev);
+            }
         }
-	}
 
-	/**
-	 * Returns a list of attached FT4222 devices.
-	 */
-	private static List<FT4222Device> selectDevices() throws FTDIException {
-		List<FT4222Device> devices = new ArrayList<>();
-		
-		for (Device dev : FTDIInterface.getDevices()) {
-			if (dev instanceof FT4222Device) {
-				devices.add((FT4222Device) dev);
-			}
-		}
-
-		return devices;
-	}
+        return devices;
+    }
 }

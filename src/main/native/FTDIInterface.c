@@ -357,6 +357,12 @@ JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
 		return NULL;  // Exception thrown
 	}
 
+	// Lookup FT4222Device.class
+	jclass ft4222deviceCls = (*env)->FindClass(env, "net/sf/yad2xx/FT4222Device");
+	if (ft4222deviceCls == NULL) {
+		return NULL;  // Exception thrown
+	}
+
 	// Allocate an array to hold the correct number of attached Devices
 	jobjectArray devices = (*env)->NewObjectArray(env, dwNumDevs, deviceCls, NULL);
 	if (devices == NULL) {
@@ -374,6 +380,12 @@ JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
 			// Get the constructor for Device(int,int,int,int,int,String,String,long)
 			jmethodID cid = (*env)->GetMethodID(env, deviceCls, "<init>", "(IIIIILjava/lang/String;Ljava/lang/String;J)V");
 			if (cid == NULL) {
+				return NULL;  // Exception thrown
+			}
+
+			// Get the constructor for FT4222Device(int,int,int,int,int,String,String,long)
+			jmethodID ft4222cid = (*env)->GetMethodID(env, ft4222deviceCls, "<init>", "(IIIIILjava/lang/String;Ljava/lang/String;J)V");
+			if (ft4222cid == NULL) {
 				return NULL;  // Exception thrown
 			}
 
@@ -415,9 +427,17 @@ JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
 					return NULL; // Exception thrown
 				}
 
-				// Construct the Device
-				jobject device = (*env)->NewObject(env, deviceCls, cid, i, devInfo[i].Flags, devInfo[i].Type, devInfo[i].ID,
-						devInfo[i].LocId, jSerial, jDesc, devInfo[i].ftHandle);
+				// Construct either a Device or FT4222Device
+				jobject device = NULL;
+				if (devInfo[i].Type >= FT_DEVICE_4222H_0 || devInfo[i].Type <= FT_DEVICE_4222_PROG) {
+					// new FT4222Device
+                    device = (*env)->NewObject(env, ft4222deviceCls, ft4222cid, i, devInfo[i].Flags, devInfo[i].Type, devInfo[i].ID,
+                                               devInfo[i].LocId, jSerial, jDesc, devInfo[i].ftHandle);
+				} else {
+					// new Device
+                    device = (*env)->NewObject(env, deviceCls, cid, i, devInfo[i].Flags, devInfo[i].Type, devInfo[i].ID,
+                                               devInfo[i].LocId, jSerial, jDesc, devInfo[i].ftHandle);
+				}
 				if (device == NULL) {
 					return NULL; // Exception thrown
 				}

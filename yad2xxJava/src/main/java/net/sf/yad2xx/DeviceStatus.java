@@ -1,8 +1,8 @@
 /*
  * Copyright 2012-18 Stephen Davies
- * 
+ *
  * This file is part of yad2xx.
- * 
+ *
  * yad2xx is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -21,64 +21,76 @@ package net.sf.yad2xx;
 /**
  * Immutable result from the D2XX FT_GetStatus function.
  *
- * @author		Stephen Davies
- * @since		28 Dec 2014
- * @since		0.3
+ * @author Stephen Davies
+ * @since 28 Dec 2014
+ * @since 0.3
  */
-public class DeviceStatus {
-	
-	// Implementation note. D2XX API is using the DWORD type for these values,
-	// a 32 bit unsigned int. Using Java long guarantees no sign issues.
-	
-	/**
-	 * Number of bytes in receive queue.
-	 */
-	private final long txBytes;
-	
-	/**
-	 * Number of bytes in transmit queue.
-	 */
-	private final long rxBytes;
+public final class DeviceStatus {
 
-	/**
-	 * Current event status.
-	 */
-	private final long eventStatus;
+    // Implementation note. D2XX API is using the DWORD type for these values,
+    // a 32 bit unsigned int. Using Java long guarantees no sign issues.
 
-	/**
-	 * Create device status snapshot.
-	 *
-	 * @param	rxBytes			number of bytes in receive queue
-	 * @param	txBytes         number of bytes in transmit queue
-	 * @param	eventStatus		current event status
-	 */
-	public DeviceStatus(long rxBytes, long txBytes, long eventStatus) {
-		this.rxBytes = rxBytes;
-		this.txBytes = txBytes;
-		this.eventStatus = eventStatus;
-	}
+    /**
+     * Number of bytes in receive queue.
+     */
+    private final long txBytes;
 
-	public long getEventStatus() {
-		return eventStatus;
-	}
+    /**
+     * Number of bytes in transmit queue.
+     */
+    private final long rxBytes;
 
-	public long getRxBytes() {
-		return rxBytes;
-	}
-	
-	public long getTxBytes() {
-		return txBytes;
-	}
-	
-	@Override
-	public String toString() {
-		StringBuilder result = new StringBuilder("DeviceStatus(rx: ");
-		result.append(rxBytes);
-		result.append(", tx: ");
-		result.append(txBytes);
-		result.append(", eventStatus: ");
-		result.append(Long.toString(eventStatus, 16));
-		result.append(")");
-		return result.toString();
-	}
+    /**
+     * Current event status.
+     */
+    private final long eventStatus;
+
+    /**
+     * Create device status snapshot.
+     *
+     * @param rxBytes
+     *            number of bytes in receive queue
+     * @param txBytes
+     *            number of bytes in transmit queue
+     * @param eventStatus
+     *            current event status
+     */
+    public DeviceStatus(long rxBytes, long txBytes, long eventStatus) {
+        this.rxBytes = rxBytes;
+        this.txBytes = txBytes;
+        this.eventStatus = eventStatus;
+    }
+
+    /**
+     * @return current event status
+     */
+    public long getEventStatus() {
+        return eventStatus;
+    }
+
+    /**
+     * @return number of bytes in receive queue
+     */
+    public long getRxBytes() {
+        return rxBytes;
+    }
+
+    /**
+     * @return number of bytes in transmit queue
+     */
+    public long getTxBytes() {
+        return txBytes;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder("DeviceStatus(rx: ");
+        result.append(rxBytes);
+        result.append(", tx: ");
+        result.append(txBytes);
+        result.append(", eventStatus: ");
+        result.append(Long.toString(eventStatus, 16));
+        result.append(")");
+        return result.toString();
+    }
 }

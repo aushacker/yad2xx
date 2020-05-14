@@ -12,3 +12,8 @@
 *.zip
 *.tar.gz
 *.rar
+
+# Eclipse control files
+.project
+.settings
+.checkstyle
