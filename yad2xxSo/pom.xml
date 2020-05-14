@@ -64,7 +64,7 @@
 						<linkerStartOption>-shared</linkerStartOption>
 					</linkerStartOptions>
 					<linkerEndOptions>
-						<linkerStartOption>-lftd2xx -L/usr/local/lib</linkerStartOption>
+						<linkerStartOption>-lftd2xx -lft4222 -L/usr/local/lib</linkerStartOption>
 					</linkerEndOptions>
 
 				</configuration>

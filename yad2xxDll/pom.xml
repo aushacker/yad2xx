@@ -70,7 +70,8 @@
 						<linkerStartOption>-shared -m64 -Wl,--kill-at -L${env.D2XX_HOME}</linkerStartOption>
 					</linkerStartOptions>
 					<linkerEndOptions>
-						<linkerEndOption>-lftd2xx</linkerEndOption>
+                        <linkerEndOption>-lftd2xx</linkerEndOption>
+                        <linkerEndOption>-lft4222</linkerEndOption>
 					</linkerEndOptions>
 
 				</configuration>
