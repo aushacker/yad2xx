@@ -82,7 +82,7 @@ public class Device {
 	 * @param description		driver description
 	 * @param ftHandle
 	 */
-	protected Device(int index, int flags, int type, int id, int locationId, String serialNumber, String description, long ftHandle) {
+	Device(int index, int flags, int type, int id, int locationId, String serialNumber, String description, long ftHandle) {
 		this.index = index;
 		this.flags = flags;
 		this.type = type;

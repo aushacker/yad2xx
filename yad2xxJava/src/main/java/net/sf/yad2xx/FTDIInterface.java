@@ -355,6 +355,16 @@ public class FTDIInterface {
 	native static long getVidPidRaw() throws FTDIException;
 	
 	/**
+	 * Initialize the FT4222H as an I2C master with the requested I2C speed.
+	 *  
+	 * @param   ftHandle                FT4222 device handle
+	 * @throws  FTDIException           FT4222_I2CMaster_Init returned a non-zero status code
+	 * @see                             FTDIDevice#i2cMasterInit(int)
+	 * @since   2.1
+	 */
+	native static void i2cMasterInit(long ftHandle, int kbps) throws FTDIException;
+
+	/**
 	 * Opens the device. D2XX handle is recorded in the device.
 	 * 
 	 * @param	device			device to open
@@ -667,6 +677,16 @@ public class FTDIInterface {
 	 * @since	1.0
 	 */
 	native static void stopInTask(long ftHandle) throws FTDIException;
+
+	/**
+	 * Release allocated resources.
+	 *  
+	 * @param   ftHandle                FT4222 device handle
+	 * @throws  FTDIException           FT4222_UnInitialize returned a non-zero status code
+	 * @see                             FTDIDevice#unInitialize()
+	 * @since   2.1
+	 */
+	native static void unInitialize(long ftHandle) throws FTDIException;
 
 	/**
 	 * Write data to the device.

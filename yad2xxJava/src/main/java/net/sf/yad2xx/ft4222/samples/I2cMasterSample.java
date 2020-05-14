@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.yad2xx.Device;
+import net.sf.yad2xx.FT4222Device;
 import net.sf.yad2xx.FTDIException;
 import net.sf.yad2xx.FTDIInterface;
-import net.sf.yad2xx.ft4222.FT4222Device;
 
 /**
  * Functionally equivalent to the FTDI Chip i2c_master.cpp example.

@@ -95,7 +95,6 @@
 
 			<modules>
 				<module>yad2xxJnilib</module>
-				<module>yad4222Jnilib</module>
 			</modules>
 
 		</profile>

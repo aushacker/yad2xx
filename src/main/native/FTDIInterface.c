@@ -34,6 +34,7 @@
 
 #include "net_sf_yad2xx_FTDIInterface.h"
 #include "ftd2xx.h"
+#include "libft4222.h"
 
 /*
  * Utility method to make it easier to handle failures.
@@ -1443,3 +1444,54 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_writeEE
 	}
 
 }
+
+
+/*
+ * Initialize the FT4222H as an I2C master with the requested I2C speed.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    i2cMasterInit
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterInit
+  (JNIEnv * env, jclass clsIFace, jlong handle, jint kbps)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_I2CMaster_Init(ftHandle, kbps);
+
+	if (ftStatus == FT4222_OK) {
+		return;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_I2CMaster_Init");
+		return;
+	}
+}
+
+
+/*
+ * Release allocated resources.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    unInitialize
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_unInitialize
+  (JNIEnv * env, jclass clsIFace, jlong handle)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_UnInitialize(ftHandle);
+
+	if (ftStatus == FT4222_OK) {
+		return;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_UnInitialize");
+		return;
+	}
+}
+

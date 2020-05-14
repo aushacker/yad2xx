@@ -17,10 +17,7 @@
  * along with yad2xx. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.sf.yad2xx.ft4222;
-
-import net.sf.yad2xx.Device;
-import net.sf.yad2xx.FTDIException;
+package net.sf.yad2xx;
 
 /**
  * High level API for communicating with FTDI FT4222 devices.
@@ -57,11 +54,11 @@ public class FT4222Device extends Device {
 	 *                                  the initialization function helps to setup the bus speed with the corresponding mode.
 	 *                                  This parameter is used to configure the FT4222H to be either SM, FB, FM+ or HS mode
 	 * @throws	FTDIException			API call failed, see exception fields for details
-	 * @see								FT4222Interface#i2cMasterInit(long, int)
+	 * @see								FTDIInterface#i2cMasterInit(long, int)
 	 * @since	2.1
 	 */
 	public void i2cMasterInit(int kbps) throws FTDIException {
-		FT4222Interface.i2cMasterInit(getHandle(), kbps);
+		FTDIInterface.i2cMasterInit(getHandle(), kbps);
 	}
 
 	/**
@@ -72,12 +69,12 @@ public class FT4222Device extends Device {
 	 * @return                          data received from the device. Returned array length indicates
 	 *                                  sizeTransferred
 	 * @throws	FTDIException			API call failed, see exception fields for details
-	 * @see								FT4222Interface#i2cMasterRead(long, int, int)
+	 * @see								FTDIInterface#i2cMasterRead(long, int, int)
 	 * @since	2.1
 	 */
 	public byte[] i2cMasterRead(int slaveAddress, int bytesToRead) throws FTDIException {
 		// TODO
-		return null;
+		return new byte[0];
 	}
 
 	/**
@@ -88,7 +85,7 @@ public class FT4222Device extends Device {
 	 *                                  number of byte to write
 	 * @return                          number of bytes actually transferred (sizeTransferred).
 	 * @throws	FTDIException			API call failed, see exception fields for details
-	 * @see								FT4222Interface#i2cMasterRead(long, int, byte[])
+	 * @see								FTDIInterface#i2cMasterRead(long, int, byte[])
 	 * @since	2.1
 	 */
 	public int i2cMasterWrite(int slaveAddress, byte[] data) throws FTDIException {
@@ -100,10 +97,10 @@ public class FT4222Device extends Device {
 	 * Release allocated resources. Should be called before calling close().
 	 *  
 	 * @throws	FTDIException			API call failed, see exception fields for details
-	 * @see								FT4222Interface#unInitialize(long)
+	 * @see								FTDIInterface#unInitialize(long)
 	 * @since	2.1
 	 */
     public void unInitialize() throws FTDIException {
-		FT4222Interface.unInitialize(getHandle());
+		FTDIInterface.unInitialize(getHandle());
     }
 }

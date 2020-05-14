@@ -58,7 +58,7 @@
 					</sources>
 
 					<linkerStartOptions>
-						<linkerStartOption>-dynamiclib -lftd2xx -L/usr/local/lib</linkerStartOption>
+						<linkerStartOption>-dynamiclib -lftd2xx -lft4222 -L/usr/local/lib</linkerStartOption>
 					</linkerStartOptions>
 
 				</configuration>
