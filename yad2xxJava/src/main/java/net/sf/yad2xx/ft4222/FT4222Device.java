@@ -23,9 +23,11 @@ import net.sf.yad2xx.Device;
 import net.sf.yad2xx.FTDIException;
 
 /**
+ * High level API for communicating with FTDI FT4222 devices.
+ *
  * @author Stephen Davies
  * @since 13 May 2020
- * @since 2.0
+ * @since 2.1
  */
 public class FT4222Device extends Device {
 
@@ -38,31 +40,70 @@ public class FT4222Device extends Device {
 	 * @param type
 	 * @param id
 	 * @param locationId
-	 * @param serialNumber		burned in device serial number
-	 * @param description		driver description
+	 * @param serialNumber             burned in device serial number
+	 * @param description              driver description
 	 * @param ftHandle
 	 *
-	 * @since 2.0
+	 * @since 2.1
 	 */
 	FT4222Device(int index, int flags, int type, int id, int locationId, String serialNumber, String description, long ftHandle) {
 		super(index, flags, type, id, locationId, serialNumber, description, ftHandle);
 	}
 
+	/**
+	 * Initialize the FT4222H as an I2C master with the requested I2C speed.
+	 *  
+	 * @param	kbps                    The speed of I2C transmission. It ranges from 60K bps to 3400K bps. By specified speed,
+	 *                                  the initialization function helps to setup the bus speed with the corresponding mode.
+	 *                                  This parameter is used to configure the FT4222H to be either SM, FB, FM+ or HS mode
+	 * @throws	FTDIException			API call failed, see exception fields for details
+	 * @see								FT4222Interface#i2cMasterInit(long, int)
+	 * @since	2.1
+	 */
 	public void i2cMasterInit(int kbps) throws FTDIException {
-		// TODO
+		FT4222Interface.i2cMasterInit(getHandle(), kbps);
 	}
 
-	public byte[] i2cMasterRead(int slaveAddress) throws FTDIException {
+	/**
+	 * Read data from the specified I2C slave device with START and STOP conditions.
+	 *  
+	 * @param	slaveAddress            address of the target i2c slave
+	 * @param   bytesToRead             number of bytes to read from the device
+	 * @return                          data received from the device. Returned array length indicates
+	 *                                  sizeTransferred
+	 * @throws	FTDIException			API call failed, see exception fields for details
+	 * @see								FT4222Interface#i2cMasterRead(long, int, int)
+	 * @since	2.1
+	 */
+	public byte[] i2cMasterRead(int slaveAddress, int bytesToRead) throws FTDIException {
 		// TODO
 		return null;
 	}
 
+	/**
+	 * Write data to the specified I2C slave device with START and STOP conditions.
+	 *  
+	 * @param	slaveAddress            address of the target i2c slave
+	 * @param   data                    data to be written to the device. Array length implies
+	 *                                  number of byte to write
+	 * @return                          number of bytes actually transferred (sizeTransferred).
+	 * @throws	FTDIException			API call failed, see exception fields for details
+	 * @see								FT4222Interface#i2cMasterRead(long, int, byte[])
+	 * @since	2.1
+	 */
 	public int i2cMasterWrite(int slaveAddress, byte[] data) throws FTDIException {
 		// TODO
 		return 0;
 	}
 
+	/**
+	 * Release allocated resources. Should be called before calling close().
+	 *  
+	 * @throws	FTDIException			API call failed, see exception fields for details
+	 * @see								FT4222Interface#unInitialize(long)
+	 * @since	2.1
+	 */
     public void unInitialize() throws FTDIException {
-    	// TODO
+		FT4222Interface.unInitialize(getHandle());
     }
 }

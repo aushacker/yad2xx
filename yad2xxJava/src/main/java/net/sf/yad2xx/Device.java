@@ -209,6 +209,13 @@ public class Device {
 	}
 
 	/**
+	 * Allow subclass access.
+	 */
+	protected long getHandle() {
+		return ftHandle;
+	}
+
+	/**
 	 * Get the current value of the latency timer.
 	 * <p>
 	 * In the FT8U232AM and FT8U245AM devices, the receive buffer timeout that

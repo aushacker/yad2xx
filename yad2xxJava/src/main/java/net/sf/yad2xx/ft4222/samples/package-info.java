@@ -19,6 +19,7 @@
 
 /**
  * @author Stephen Davies
- * @since 2020
+ * @since 13 May 2020
+ * @since 2.1
  */
 package net.sf.yad2xx.ft4222.samples;

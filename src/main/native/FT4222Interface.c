@@ -92,77 +92,51 @@ void ThrowFTDIException(JNIEnv * env, const jint ftStatus, const char * function
 
 
 /*
- * Close an open device.
+ * Initialize the FT4222H as an I2C master with the requested I2C speed.
  *
- * Class:     net_sf_yad2xx_FTDIInterface
- * Method:    close
- * Signature: (Lnet/sf/yad2xx/Device;)V
+ * Class:     net_sf_yad2xx_ft4222_FT4222Interface
+ * Method:    i2cMasterInit
+ * Signature: (JI)V
  */
-/*
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_close
-  (JNIEnv * env, jclass clsIFace, jobject device)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_ft4222_FT4222Interface_i2cMasterInit
+  (JNIEnv * env, jclass clsIFace, jlong handle, jint kbps)
 {
 	FT_HANDLE ftHandle;
 	FT_STATUS ftStatus;
 
-	// Get Device.class
-	jclass deviceCls = (*env)->GetObjectClass(env, device);
-	if (deviceCls == NULL) {
-		return; // Exception thrown
-	}
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_I2CMaster_Init(ftHandle, kbps);
 
-	// get device field ftHandle
-	jfieldID handleID = (*env)->GetFieldID(env, deviceCls, "ftHandle", "J");
-	if (handleID == NULL) {
-		return; // Exception thrown
-	}
-	ftHandle = (FT_HANDLE) (*env)->GetLongField(env, device, handleID);
-
-	ftStatus = FT_Close(ftHandle);
-
-	if (ftStatus == FT_OK) {
-
-		// update device flags
-		jint flags;
-		jfieldID flagsID = (*env)->GetFieldID(env, deviceCls, "flags", "I");
-		if (flagsID == NULL) {
-			return; // Exception thrown
-		}
-		flags = (*env)->GetIntField(env, device, flagsID);
-		flags &= ~(FT_FLAGS_OPENED);
-		(*env)->SetIntField(env, device, flagsID, flags);
-
-		// update device handle
-		(*env)->SetLongField(env, device, handleID, 0);
-
+	if (ftStatus == FT4222_OK) {
+		return;
 	} else {
-		ThrowFTDIException(env, ftStatus, "FT_Close");
+		ThrowFTDIException(env, ftStatus, "FT4222_I2CMaster_Init");
+		return;
 	}
 }
-*/
+
 
 /*
- * This function clears the Data Terminal Ready (DTR) control signal.
+ * Release allocated resources.
  *
- * Class:     net_sf_yad2xx_FTDIInterface
- * Method:    clrDtr
+ * Class:     net_sf_yad2xx_ft4222_FT4222Interface
+ * Method:    unInitialize
  * Signature: (J)V
  */
-/*
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_clrDtr
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_ft4222_FT4222Interface_unInitialize
   (JNIEnv * env, jclass clsIFace, jlong handle)
 {
 	FT_HANDLE ftHandle;
 	FT_STATUS ftStatus;
 
 	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_ClrDtr(ftHandle);
+	ftStatus = FT4222_UnInitialize(ftHandle);
 
-	if (ftStatus == FT_OK) {
+	if (ftStatus == FT4222_OK) {
 		return;
 	} else {
-		ThrowFTDIException(env, ftStatus, "FT_ClrDtr");
+		ThrowFTDIException(env, ftStatus, "FT4222_UnInitialize");
 		return;
 	}
 }
-*/
+

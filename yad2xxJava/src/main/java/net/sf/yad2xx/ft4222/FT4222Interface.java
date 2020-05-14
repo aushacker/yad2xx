@@ -22,13 +22,13 @@ import net.sf.yad2xx.FTDIException;
 
 /**
  * A Java Native Interface (JNI) wrapper that adapts the FTDI
- * LibFT4222 library to a more OO based approach. This Singleton type
+ * FT4222 library to a more OO based approach. This Singleton type
  * provides a very thin Java layer over the top of the native C
  * language code and is central to the libraries operation.
  *
- * @author		Stephen Davies
- * @since		13 May 2020
- * @since		2.0
+ * @author      Stephen Davies
+ * @since       13 May 2020
+ * @since       2.1
  */
 public class FT4222Interface {
 
@@ -41,19 +41,22 @@ public class FT4222Interface {
 	}
 
 	/**
-	 * This function builds a device information list
-	 * (calls FT_CreateDeviceInfoList) and returns the number of D2XX devices
-	 * connected to the system. The list contains information about both
-	 * unopened and open devices.
-	 * <p>
-	 * Not sure how useful this really is in Java. Probably better off just
-	 * using {@link #getDevices()} and using the returned array length.
-	 * 
-	 * @return					number of devices connected to the system
-	 * @throws	FTDIException	FT_CreateDeviceInfoList returned a non-zero
-	 *							status code
-	 * @since	0.1
+	 * Initialize the FT4222H as an I2C master with the requested I2C speed.
+	 *  
+	 * @param   ftHandle                FT4222 device handle
+	 * @throws  FTDIException           FT4222_I2CMaster_Init returned a non-zero status code
+	 * @see                             FT4222Device#i2cMasterInit(int)
+	 * @since   2.1
 	 */
-	public static native int getDeviceCount() throws FTDIException;
+	native static void i2cMasterInit(long ftHandle, int kbps) throws FTDIException;
 
+	/**
+	 * Release allocated resources.
+	 *  
+	 * @param   ftHandle                FT4222 device handle
+	 * @throws  FTDIException           FT4222_UnInitialize returned a non-zero status code
+	 * @see                             FT4222Device#unInitialize()
+	 * @since   2.1
+	 */
+	native static void unInitialize(long ftHandle) throws FTDIException;
 }
