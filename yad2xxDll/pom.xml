@@ -71,7 +71,7 @@
 					</linkerStartOptions>
 					<linkerEndOptions>
                         <linkerEndOption>-lftd2xx</linkerEndOption>
-                        <linkerEndOption>-lft4222</linkerEndOption>
+                        <linkerEndOption>-lLibFT4222</linkerEndOption>
 					</linkerEndOptions>
 
 				</configuration>
