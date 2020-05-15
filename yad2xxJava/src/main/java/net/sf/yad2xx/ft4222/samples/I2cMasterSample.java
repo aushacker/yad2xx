@@ -33,7 +33,10 @@ import net.sf.yad2xx.FTDIInterface;
  * @author Stephen Davies
  * @since 2020
  */
-public class I2cMasterSample {
+public final class I2cMasterSample {
+
+    private I2cMasterSample() {
+    }
 
     /**
      * I2C bus date rate.
@@ -55,21 +58,19 @@ public class I2cMasterSample {
                 dev.i2cMasterInit(BIT_RATE_400K);
 
                 int slaveAddr = 0x22;
-                byte master_data[] = { 0x1A, 0x2B, 0x3C, 0x4D };
+                byte[] masterData = { 0x1A, 0x2B, 0x3C, 0x4D };
                 int sizeTransferred = 0;
 
-                System.out.printf("I2C master write data to the slave(%#x)... \n",
-                        slaveAddr);
-                sizeTransferred = dev.i2cMasterWrite(slaveAddr, master_data);
+                System.out.printf("I2C master write data to the slave(%#x)... \n", slaveAddr);
+                sizeTransferred = dev.i2cMasterWrite(slaveAddr, masterData);
                 System.out.printf("bytes written: %d\n", sizeTransferred);
 
-                System.out.printf("I2C master read data from the slave(%#x)... \n",
-                        slaveAddr);
-                byte slave_data[] = dev.i2cMasterRead(slaveAddr, 4);
+                System.out.printf("I2C master read data from the slave(%#x)... \n", slaveAddr);
+                byte[] slaveData = dev.i2cMasterRead(slaveAddr, 4);
 
                 System.out.print("  slave data: ");
-                for (int i = 0; i < slave_data.length; ++i) {
-                    System.out.printf("%#x, ", slave_data[i]);
+                for (int i = 0; i < slaveData.length; ++i) {
+                    System.out.printf("%#x, ", slaveData[i]);
                 }
                 System.out.println();
 
@@ -88,7 +89,7 @@ public class I2cMasterSample {
     }
 
     /**
-     * Returns a list of attached FT4222 devices.
+     * @return list of attached FT4222 devices.
      */
     private static List<FT4222Device> selectDevices() throws FTDIException {
         List<FT4222Device> devices = new ArrayList<>();

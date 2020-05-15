@@ -429,7 +429,7 @@ JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
 
 				// Construct either a Device or FT4222Device
 				jobject device = NULL;
-				if (devInfo[i].Type >= FT_DEVICE_4222H_0 || devInfo[i].Type <= FT_DEVICE_4222_PROG) {
+				if (devInfo[i].Type >= FT_DEVICE_4222H_0 && devInfo[i].Type <= FT_DEVICE_4222_PROG) {
 					// new FT4222Device
                     device = (*env)->NewObject(env, ft4222deviceCls, ft4222cid, i, devInfo[i].Flags, devInfo[i].Type, devInfo[i].ID,
                                                devInfo[i].LocId, jSerial, jDesc, devInfo[i].ftHandle);

@@ -1,8 +1,8 @@
 /*
  * Copyright 2015-2016 Stephen Davies
- * 
+ *
  * This file is part of yad2xx.
- * 
+ *
  * yad2xx is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -21,31 +21,35 @@ package net.sf.yad2xx.samples;
 import java.util.Enumeration;
 
 /**
- * <p>Utility program that dumps the JVM's properties to the console. Useful
+ * Utility program that dumps the JVM's properties to the console. Useful
  * for working out where to put the native library. Does not use any D2XX
- * library functions.</p>
- * 
- * <p>A better solution is: java -XshowSettings:all. Leaving this as documentation.</p>
- * 
+ * library functions.
+ * <p>
+ * A better solution is: java -XshowSettings:all. Leaving this as
+ * documentation.
+ *
  * @author Stephen Davies
  * @since 14 April 2016
  * @since 0.4
  * @deprecated
  */
-public class DumpSystemProperties {
+public final class DumpSystemProperties {
 
-	public static void main(String[] args) {
-		
-		Enumeration<?> names = System.getProperties().propertyNames();
-		
-		while (names.hasMoreElements()) {
-			String name = (String) names.nextElement();
-			String value = System.getProperty(name);
-			System.out.print(name);
-			System.out.print("=");
-			System.out.println(value);
-		}
+    private DumpSystemProperties() {
+    }
 
-	}
+    public static void main(String[] args) {
+
+        Enumeration<?> names = System.getProperties().propertyNames();
+
+        while (names.hasMoreElements()) {
+            String name = (String) names.nextElement();
+            String value = System.getProperty(name);
+            System.out.print(name);
+            System.out.print("=");
+            System.out.println(value);
+        }
+
+    }
 
 }
