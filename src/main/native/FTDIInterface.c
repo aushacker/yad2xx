@@ -27,6 +27,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #if defined (_WIN32)
 #include <windows.h>
@@ -389,8 +390,8 @@ JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
 				return NULL;  // Exception thrown
 			}
 
-			DWORD i;
-			for (i = 0; i < dwNumDevs; i++) {
+			int64_t i;
+			for (i = 0LL; i < dwNumDevs; i++) {
 			
                 if (devInfo[i].Flags & FT_FLAGS_OPENED) {
                     // Open devices have data missing in the DevInfoList structure,
@@ -398,8 +399,6 @@ JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
                     //
                     // NB. The first argument to FT_ListDevices is interpreted as either
                     // a pointer or an integer depending on the FLAGS used.
-                    // (PVOID) cast is used to avoid an error but seems clumsy.
-                    // Is there a better way to do this?
                     //
                     ftStatus = FT_ListDevices((PVOID)i, sBuff, FT_LIST_BY_INDEX | FT_OPEN_BY_SERIAL_NUMBER);
                     serialNumber = sBuff;
@@ -1465,6 +1464,9 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_writeEE
 
 }
 
+//
+// *************** LibFT4222 Functions ***************************************
+//
 
 /*
  * Initialize the FT4222H as an I2C master with the requested I2C speed.
@@ -1487,6 +1489,65 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterInit
 	} else {
 		ThrowFTDIException(env, ftStatus, "FT4222_I2CMaster_Init");
 		return;
+	}
+}
+
+
+/*
+ * Read data from the specified I2C slave device with START and STOP
+ * conditions.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    i2cMasterRead
+ * Signature: (JI[BI)I
+ */
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterRead
+  (JNIEnv * env, jclass clsIFace, jlong handle, jint slaveAddress, jbyteArray buffer, jint bytesToRead)
+{
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    uint16_t  sizeTransferred;
+	jbyte     readBuffer[bytesToRead];
+
+    ftHandle = (FT_HANDLE) handle;
+    ftStatus = FT4222_I2CMaster_Read(ftHandle, slaveAddress, (uint8_t *) readBuffer, bytesToRead, &sizeTransferred);
+
+    if (ftStatus == FT4222_OK) {
+		(*env)->SetByteArrayRegion(env, buffer, 0, (jsize) sizeTransferred, readBuffer);
+        return sizeTransferred;
+    } else {
+        ThrowFTDIException(env, ftStatus, "FT4222_I2CMaster_Read");
+        return 0;
+	}
+}
+
+
+/*
+ * Write data to the specified I2C slave device with START and STOP
+ * conditions.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    i2cMasterWrite
+ * Signature: (JI[BI)I
+ */
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterWrite
+  (JNIEnv * env, jclass clsIFace, jlong handle, jint slaveAddress, jbyteArray buffer, jint bytesToWrite)
+{
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    uint16_t  sizeTransferred;
+	jbyte     writeBuffer[bytesToWrite];
+
+	(*env)->GetByteArrayRegion(env, buffer, 0, bytesToWrite, writeBuffer);
+
+    ftHandle = (FT_HANDLE) handle;
+    ftStatus = FT4222_I2CMaster_Write(ftHandle, slaveAddress, (uint8_t *) writeBuffer, bytesToWrite, &sizeTransferred);
+
+    if (ftStatus == FT4222_OK) {
+        return sizeTransferred;
+    } else {
+        ThrowFTDIException(env, ftStatus, "FT4222_I2CMaster_Write");
+        return 0;
 	}
 }
 

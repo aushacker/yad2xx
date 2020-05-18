@@ -66,7 +66,8 @@ public final class I2cMasterSample {
                 System.out.printf("bytes written: %d\n", sizeTransferred);
 
                 System.out.printf("I2C master read data from the slave(%#x)... \n", slaveAddr);
-                byte[] slaveData = dev.i2cMasterRead(slaveAddr, 4);
+                byte[] slaveData = new byte[4];
+                dev.i2cMasterRead(slaveAddr, slaveData, 4);
 
                 System.out.print("  slave data: ");
                 for (int i = 0; i < slaveData.length; ++i) {
