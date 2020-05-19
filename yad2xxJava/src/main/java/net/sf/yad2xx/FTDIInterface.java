@@ -177,16 +177,29 @@ public class FTDIInterface {
 	 */
 	public static native void setVidPid(int vid, int pid) throws FTDIException;
 
-	/**
-	 * Close the opened device. Calls FT_Close. ftHandle and flags will be 
-	 * reset at completion.
-	 *
-	 * @param	device			device to close
-	 * @throws	FTDIException	FT_Close returned a non-zero status code
-	 * @see						Device#close()
-	 * @since	0.1
-	 */
-	static native void close(Device device) throws FTDIException;
+    /**
+     * Software reset for device. (FT4222 only)
+     * <p>
+     * This function is used to attempt to recover system after a failure.
+     * It is a software reset for the device.
+     *
+     * @param   ftHandle        FT4222 device handle
+     * @throws  FTDIException   FT4222_ChipReset returned a non-zero status code
+     * @see                     FT4222Device#chipReset()
+     * @since   2.1
+     */
+    static native void chipReset(long ftHandle) throws FTDIException;
+
+    /**
+     * Close the opened device. Calls FT_Close. ftHandle and flags will be 
+     * reset at completion.
+     *
+     * @param   device          device to close
+     * @throws  FTDIException   FT_Close returned a non-zero status code
+     * @see                     Device#close()
+     * @since   0.1
+     */
+    static native void close(Device device) throws FTDIException;
 
 	/**
 	 * Clears the Data Terminal Ready (DTR) control signal.

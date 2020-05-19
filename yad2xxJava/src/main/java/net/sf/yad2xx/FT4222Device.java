@@ -48,6 +48,22 @@ public class FT4222Device extends Device {
     }
 
     /**
+     * Software reset for device.
+     * <p>
+     * This function is used to attempt to recover system after a failure.
+     * It is a software reset for the device.
+     *
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @see FTDIInterface#chipReset(long)
+     * @since 2.1
+     */
+    public void chipReset() throws FTDIException {
+        FTDIInterface.chipReset(getHandle());
+    }
+
+    /**
      * Initialize the FT4222H as an I2C master with the requested I2C speed.
      *
      * @param kbps

@@ -1469,6 +1469,31 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_writeEE
 //
 
 /*
+ * Perform chip software reset.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    chipReset
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_chipReset
+  (JNIEnv * env, jclass clsIFace, jlong handle)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_ChipReset(ftHandle);
+
+	if (ftStatus == FT4222_OK) {
+		return;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_ChipReset");
+		return;
+	}
+}
+
+
+/*
  * Initialize the FT4222H as an I2C master with the requested I2C speed.
  *
  * Class:     net_sf_yad2xx_FTDIInterface

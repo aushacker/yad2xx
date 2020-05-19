@@ -29,9 +29,12 @@ import net.sf.yad2xx.FTDIInterface;
 
 /**
  * Functionally equivalent to the FTDI Chip i2c_master.cpp example.
+ * <p>
+ * Tweaked a little bit to work with a TI PCF8575 I2C IO device
  *
  * @author Stephen Davies
- * @since 2020
+ * @since May 2020
+ * @since 2.1
  */
 public final class I2cMasterSample {
 
@@ -57,8 +60,8 @@ public final class I2cMasterSample {
                 System.out.println("Init FT4222 as I2C master");
                 dev.i2cMasterInit(BIT_RATE_400K);
 
-                int slaveAddr = 0x22;
-                byte[] masterData = { 0x1A, 0x2B, 0x3C, 0x4D };
+                int slaveAddr = 0x20;
+                byte[] masterData = { (byte)0xA5, (byte)0xC3 };
                 int sizeTransferred = 0;
 
                 System.out.printf("I2C master write data to the slave(%#x)... \n", slaveAddr);
@@ -66,8 +69,8 @@ public final class I2cMasterSample {
                 System.out.printf("bytes written: %d\n", sizeTransferred);
 
                 System.out.printf("I2C master read data from the slave(%#x)... \n", slaveAddr);
-                byte[] slaveData = new byte[4];
-                dev.i2cMasterRead(slaveAddr, slaveData, 4);
+                byte[] slaveData = new byte[2];
+                dev.i2cMasterRead(slaveAddr, slaveData, 2);
 
                 System.out.print("  slave data: ");
                 for (int i = 0; i < slaveData.length; ++i) {
