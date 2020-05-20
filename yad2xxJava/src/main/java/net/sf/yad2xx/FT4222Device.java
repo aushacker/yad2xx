@@ -19,6 +19,8 @@
 
 package net.sf.yad2xx;
 
+import net.sf.yad2xx.ft4222.ClockRate;
+
 /**
  * High level API for communicating with FTDI FT4222 devices.
  *
@@ -64,6 +66,24 @@ public class FT4222Device extends Device {
     }
 
     /**
+     * Get the current system clock rate.
+     *
+     * @return the current clock rate
+     * @throws FTDIException
+     *             API call failed, see exception fields for details.
+     *             More information can be found in AN_329.
+     * @throws IllegalStateException
+     *             Device must be opened before calling this method.
+     * @see FTDIInterface#getClock(long)
+     * @since 2.1
+     */
+    public ClockRate getClock() throws FTDIException {
+        if (!isOpen())
+            throw new IllegalStateException("Device not open");
+        return ClockRate.byOrdinal(FTDIInterface.getClock(getHandle()));
+    }
+
+    /**
      * Initialize the FT4222H as an I2C master with the requested I2C speed.
      *
      * @param kbps
@@ -88,6 +108,8 @@ public class FT4222Device extends Device {
      *
      * @param slaveAddress
      *            address of the target i2c slave
+     * @param buffer
+     *            
      * @param bytesToRead
      *            max number of bytes to read from the device
      * @return sizeTransferred
@@ -120,6 +142,44 @@ public class FT4222Device extends Device {
     public int i2cMasterWrite(int slaveAddress, byte[] buffer) throws FTDIException {
         return FTDIInterface.i2cMasterWrite(getHandle(), slaveAddress, buffer,
                                             buffer.length);
+    }
+
+    /**
+     * Set the system clock rate. The FT4222H supports 4 clock rates: 80MHz,
+     * 60MHz, 48MHz, or 24MHz. By default, the FT4222H runs at 60MHz clock
+     * rate.
+     *
+     * @param rate
+     * @throws FTDIException
+     *             API call failed, see exception fields for details.
+     *             More information can be found in AN_329.
+     * @see FTDIInterface#setClock(long, long)
+     * @since 2.1
+     */
+    public void setClock(ClockRate rate) throws FTDIException {
+        FTDIInterface.setClock(getHandle(), rate.ordinal());
+    }
+
+    /**
+     * Enable or disable, suspend out, which will emit a signal when FT4222H
+     * enters suspend mode. Please note that the suspend-out pin is not
+     * available under mode 2. By default, suspend-out function is on.
+     * <p>
+     * When suspend-out function is on, suspend-out pin emits signal according
+     * to suspend-out polarity. The default value of suspend-out polarity is
+     * active high. It means suspend-out pin output low in normal mode and
+     * output high in suspend mode. Suspend-out polarity only can be adjusted
+     * by FT_PROG.
+     *
+     * @param enable
+     * @throws FTDIException
+     *             API call failed, see exception fields for details.
+     *             More information can be found in AN_329.
+     * @see FTDIInterface#setSuspendOut(long, boolean)
+     * @since 2.1
+     */
+    public void setSuspendOut(boolean enable) throws FTDIException {
+        FTDIInterface.setSuspendOut(getHandle(), enable);
     }
 
     /**

@@ -37,6 +37,10 @@
 #include "ftd2xx.h"
 #include "libft4222.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Utility method to make it easier to handle failures.
  *
@@ -1494,6 +1498,32 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_chipReset
 
 
 /*
+ * Get the current system clock rate.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    getClock
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getClock
+  (JNIEnv * env, jclass clsIFace, jlong handle)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+	FT4222_ClockRate clk;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_GetClock(ftHandle, &clk);
+
+	if (ftStatus == FT4222_OK) {
+		return clk;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_GetClock");
+		return -1;
+	}
+}
+
+
+/*
  * Initialize the FT4222H as an I2C master with the requested I2C speed.
  *
  * Class:     net_sf_yad2xx_FTDIInterface
@@ -1578,6 +1608,57 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterWrite
 
 
 /*
+ * Set the system clock rate.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    setClock
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setClock
+  (JNIEnv * env, jclass clsIFace, jlong handle, jlong rate)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_SetClock(ftHandle, rate);
+
+	if (ftStatus == FT4222_OK) {
+		return;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_SetClock");
+		return;
+	}
+}
+
+
+/*
+ * Enable or disable, suspend out, which will emit a signal when FT4222H
+ * enters suspend mode.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    setSuspendOut
+ * Signature: (JZ)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setSuspendOut
+  (JNIEnv * env, jclass clsIFace, jlong handle, jboolean enable)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_SetSuspendOut(ftHandle, enable);
+
+	if (ftStatus == FT4222_OK) {
+		return;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_SetSuspendOut");
+		return;
+	}
+}
+
+
+/*
  * Release allocated resources.
  *
  * Class:     net_sf_yad2xx_FTDIInterface
@@ -1601,3 +1682,7 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_unInitialize
 	}
 }
 
+
+#ifdef __cplusplus
+}
+#endif

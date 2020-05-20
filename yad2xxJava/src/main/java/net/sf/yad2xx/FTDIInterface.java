@@ -273,6 +273,18 @@ public class FTDIInterface {
 	 */
 	static native byte getBitMode(long ftHandle) throws FTDIException;
 	
+    /**
+     * Get the current system clock rate (FT4222 only).
+     *
+     * @param   ftHandle        D2XX device handle
+     * @throws  FTDIException
+     *             API call failed, see exception fields for details.
+     *             More information can be found in AN_329.
+     * @see FT4222Device#getClock()
+     * @since 2.1
+     */
+    static native int getClock(long ftHandle) throws FTDIException;
+
 	/**
 	 * Returns the Windows COM port associated with a device. Returns -1 if no
      * port is associated with the device.
@@ -563,6 +575,19 @@ public class FTDIInterface {
 	 */
 	static native void setChars(long ftHandle, char event, boolean eventEnable, char error, boolean errorEnable) throws FTDIException;
 	
+    /**
+     * Set the system clock rate (FT4222 only).
+     *
+     * @param   ftHandle        D2XX device handle
+     * @param   rate            clock rate
+     * @throws  FTDIException
+     *             API call failed, see exception fields for details.
+     *             More information can be found in AN_329.
+     * @see FT4222Device#setClock(ClockRate)
+     * @since 2.1
+     */
+    static native void setClock(long ftHandle, long rate) throws FTDIException;
+
 	/**
 	 * Sets the data characteristics for the device.
 	 *
@@ -629,6 +654,26 @@ public class FTDIInterface {
 	 */
 	static native void setFlowControl(long ftHandle, short flowControl, char xOn, char xOff) throws FTDIException;
 	
+    /**
+     * Set the latency timer value.
+     * <p>
+     * In the FT8U232AM and FT8U245AM devices, the receive buffer timeout that
+     * is used to flush remaining data from the receive buffer was fixed at 16
+     * ms. In all other FTDI devices, this timeout is programmable and can be
+     * set at 1 ms intervals between 2ms and 255 ms. This allows the device to
+     * be better optimized for protocols requiring faster response times from
+     * short data packets.
+     * 
+     * @param   ftHandle        D2XX device handle
+     * @param   timer           required value, in milliseconds, of latency
+     *                          timer. Valid range is 2 - 255
+     * @throws  FTDIException   FT_SetLatencyTimer returned a non-zero status
+     *                          code
+     * @see                     Device#setLatencyTimer(byte)
+     * @since                   0.2
+     */
+    static native void setLatencyTimer(long ftHandle, byte timer) throws FTDIException;
+    
 	/**
 	 * Sets the ResetPipeRetryCount value.
 	 * <p>
@@ -659,26 +704,20 @@ public class FTDIInterface {
 	 */
 	static native void setRts(long ftHandle) throws FTDIException;
 	
-	/**
-	 * Set the latency timer value.
-	 * <p>
-	 * In the FT8U232AM and FT8U245AM devices, the receive buffer timeout that
-	 * is used to flush remaining data from the receive buffer was fixed at 16
-	 * ms. In all other FTDI devices, this timeout is programmable and can be
-	 * set at 1 ms intervals between 2ms and 255 ms. This allows the device to
-	 * be better optimized for protocols requiring faster response times from
-	 * short data packets.
-	 * 
-	 * @param	ftHandle		D2XX device handle
-	 * @param	timer			required value, in milliseconds, of latency
-	 * 							timer. Valid range is 2 - 255
-	 * @throws	FTDIException	FT_SetLatencyTimer returned a non-zero status
-	 * 							code
-	 * @see						Device#setLatencyTimer(byte)
-	 * @since					0.2
-	 */
-	static native void setLatencyTimer(long ftHandle, byte timer) throws FTDIException;
-	
+    /**
+     * Enable or disable, suspend out, which will emit a signal when FT4222H
+     * enters suspend mode (FT4222 only).
+     *
+     * @param   ftHandle        D2XX device handle
+     * @param   enable
+     * @throws  FTDIException
+     *             API call failed, see exception fields for details.
+     *             More information can be found in AN_329.
+     * @see FT4222Device#setSuspendOut(boolean)
+     * @since 2.1
+     */
+    static native void setSuspendOut(long ftHandle, boolean enable) throws FTDIException;
+
 	/**
 	 * Sets the read and write timeouts for the device.
 	 * 
