@@ -26,25 +26,25 @@ package net.sf.yad2xx.ft4222;
  * @since May 2020
  * @since 2.1
  */
-public enum ClockRate {
-    SYS_CLK_60,
-    SYS_CLK_24,
-    SYS_CLK_48,
-    SYS_CLK_80;
-    
-    private static final ClockRate[] VALUES = {
-        SYS_CLK_60, SYS_CLK_24, SYS_CLK_48, SYS_CLK_80
-    };
-    
+public enum GpioTrigger {
+    GPIO_TRIGGER_RISING(0x01),
+    GPIO_TRIGGER_FALLING(0x02),
+    GPIO_TRIGGER_LEVEL_HIGH(0x04),
+    GPIO_TRIGGER_LEVEL_LOW(0X08);
+
     /**
-     * Convert API value to its Java enum equivalent.
-     *
-     * @param ordinal
-     *            value returned by C api
-     * @return matching Java enum value
+     * Bitmask value.
      */
-    public static ClockRate byOrdinal(int ordinal) {
-        return VALUES[ordinal];
+    private final int value;
+
+    GpioTrigger(int value) {
+        this.value = value;
     }
-    
+
+    /**
+     * @return bitmask value
+     */
+    public int getValue() {
+        return value;
+    }
 }

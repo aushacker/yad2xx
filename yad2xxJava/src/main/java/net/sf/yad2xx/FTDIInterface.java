@@ -18,6 +18,8 @@
  */
 package net.sf.yad2xx;
 
+import net.sf.yad2xx.ft4222.Version;
+
 /**
  * A Java Native Interface (JNI) wrapper that adapts the FTDI
  * D2XX library to a more OO based approach. This Singleton type
@@ -276,7 +278,7 @@ public class FTDIInterface {
     /**
      * Get the current system clock rate (FT4222 only).
      *
-     * @param   ftHandle        D2XX device handle
+     * @param   ftHandle        FT4222 device handle
      * @throws  FTDIException
      *             API call failed, see exception fields for details.
      *             More information can be found in AN_329.
@@ -328,6 +330,22 @@ public class FTDIInterface {
 	 */
 	static native byte getLatencyTimer(long ftHandle) throws FTDIException;
 	
+    /**
+     * This function returns the maximum packet size in a transaction (FT4222 only).
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @return maximum packet size
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @throws IllegalStateException
+     *             Device must be opened before calling this method.
+     * @see FT4222Device#getMaxTransferSize()
+     * @since 2.1
+     */
+    static native int getMaxTransferSize(long ftHandle) throws FTDIException;
+
 	/**
 	 * Gets the modem and line status from the device.
 	 * 
@@ -352,20 +370,35 @@ public class FTDIInterface {
 	 */
 	static native int getQueueStatus(long ftHandle) throws FTDIException;
 	
-	/**
-	 * Gets the device status including number of characters in the receive
-	 * queue, number of characters in the transmit queue, and the current event
-	 * status.
-	 *
-	 * @param	ftHandle		D2XX device handle
-	 * @return					device status
-	 * @throws	FTDIException	FT_GetStatus returned a non-zero status code
-	 * @see						DeviceStatus
-	 * @see						Device#getStatus()
-	 * @since	0.3
-	 */
-	static native DeviceStatus getStatus(long ftHandle) throws FTDIException;
-	
+    /**
+     * Gets the device status including number of characters in the receive
+     * queue, number of characters in the transmit queue, and the current event
+     * status.
+     *
+     * @param   ftHandle        D2XX device handle
+     * @return                  device status
+     * @throws  FTDIException   FT_GetStatus returned a non-zero status code
+     * @see                     DeviceStatus
+     * @see                     Device#getStatus()
+     * @since   0.3
+     */
+    static native DeviceStatus getStatus(long ftHandle) throws FTDIException;
+    
+    /**
+     * Get the versions of FT4222H and LibFT4222 (FT4222 only).
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @return device status
+     * @throws  FTDIException
+     *             API call failed, see exception fields for details.
+     *             More information can be found in AN_329.
+     * @see Version
+     * @see FT422Device#getVersion()
+     * @since 2.1
+     */
+    static native Version getVersion(long ftHandle) throws FTDIException;
+
 	/**
 	 * A command to retrieve the current VID and PID combination from within
 	 * the internal device list table. Java prevents returning multiple values
@@ -655,6 +688,21 @@ public class FTDIInterface {
 	static native void setFlowControl(long ftHandle, short flowControl, char xOn, char xOff) throws FTDIException;
 	
     /**
+     * Set trigger condition for the pin wakeup/interrupt (FT4222 only).
+     *
+     * @param ftHandle
+     *            D2XX device handle
+     * @param trigger
+     *            trigger condition
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @see FT4222Device#setInterruptTrigger(GpioTrigger)
+     * @since 2.1
+     */
+    static native void setInterruptTrigger(long ftHandle, int trigger) throws FTDIException;
+
+    /**
      * Set the latency timer value.
      * <p>
      * In the FT8U232AM and FT8U245AM devices, the receive buffer timeout that
@@ -750,6 +798,20 @@ public class FTDIInterface {
 	 * @since	0.2
 	 */
 	static native void setUSBParameters(long ftHandle, int inTransferSize, int outTransferSize) throws FTDIException;
+
+    /**
+     * Enable or disable wakeup/interrupt (FT4222 only).
+     *
+     * @param ftHandle
+     *            D2XX device handle
+     * @param enable
+     * @throws FTDIException
+     *            API call failed, see exception fields for details. More
+     *            information can be found in AN_329.
+     * @see FT4222Device#setWakeUpInterrupt(boolean)
+     * @since 2.1
+     */
+    static native void setWakeUpInterrupt(long ftHandle, boolean enable) throws FTDIException;
 
 	/**
 	 * Stops the driver's IN task.
