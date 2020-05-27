@@ -41,8 +41,6 @@ public class SpiEEPROMSample extends AbstractSample {
 	
 	private static final int MEM_SIZE_BITS = 1024;
 	
-	private static final String HEX = "0123456789ABCDEF";
-	
 	//
 	// CAT93C46 opcodes
 	//
@@ -88,7 +86,7 @@ public class SpiEEPROMSample extends AbstractSample {
 		int readsPerLine = (wordSize == WordSize.W8) ? 16 : 8;
 		
 		for (int base = 0; base < wordCount; base += readsPerLine) {
-			printHex(out, (byte) base);
+			out.printf("0x%02X", base);
 			out.print(":");
 			
 			for (int offset = 0; offset < readsPerLine; offset++) {
@@ -100,11 +98,11 @@ public class SpiEEPROMSample extends AbstractSample {
 					out.print("- ");
 				}
 				
-				printHex(out, (byte) val);
+	            out.printf("0x%02X", val);
 				
 				if (wordSize == WordSize.W16) {
 					out.print(' ');
-					printHex(out, (byte) (val >> 8));
+		            out.printf("0x%02X", val >> 8);
 				}
 			}
 			
@@ -165,17 +163,6 @@ public class SpiEEPROMSample extends AbstractSample {
 	 */
 	public void eraseAll() throws FTDIException {
 		spi.transactWrite(wordSize.getCommandLength(), encodeLongOperation(OP_ERASE_ALL));		
-	}
-
-	/**
-	 * Output a single byte in HEX.
-	 * 
-	 * @param	out				console
-	 * @param	b				value
-	 */
-	private void printHex(PrintStream out, byte b) {
-		out.print(HEX.charAt((b >> 4) & 0xf));
-		out.print(HEX.charAt(b & 0xf));
 	}
 
 	/**
