@@ -19,13 +19,15 @@
 
 package net.sf.yad2xx.ft4222.samples;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.yad2xx.Device;
 import net.sf.yad2xx.FT4222Device;
 import net.sf.yad2xx.FTDIException;
 import net.sf.yad2xx.FTDIInterface;
+import net.sf.yad2xx.ft4222.GpioTrigger;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Functionally equivalent to the FTDI Chip i2c_master.cpp example.
@@ -46,49 +48,78 @@ public final class I2cMasterSample {
      */
     private static final int BIT_RATE_400K = 400;
 
-    public static void main(String[] args) {
-        try {
+
+    public static void main(String[] args) throws FTDIException, InterruptedException {
+
+        byte[] array = {0x06, 0x01, 0x01};
+        byte[] array1 = {0x06, 0x01, 0x02};
+        byte[] array2 = {0x10, 0x02, 0x7D, 0x01};
+
+        int length = 5;
+        byte[] buffer = new byte[length];
+        int length1 = 3;
+        byte[] buffer1 = new byte[length1];
+
+        try
+        {
             List<FT4222Device> devices = selectDevices();
 
             if (!devices.isEmpty()) {
-                FT4222Device dev = devices.get(0);
+
+                FT4222Device dev = devices.get(0);  //Get device A description
+                FT4222Device dev1 = devices.get(1); //Get device B description
 
                 System.out.println(dev);
+                System.out.println(dev1);
 
-                dev.open();
+                dev.open();                         //Open device A
+                dev1.open();                        //Open device B
 
-                System.out.println("Init FT4222 as I2C master");
-                dev.i2cMasterInit(BIT_RATE_400K);
+                System.out.println("Init FT4222A as I2C master");
+                dev.i2cMasterInit(BIT_RATE_400K);   //Init device A as I2cMaster
 
-                int slaveAddr = 0x20;
-                byte[] masterData = { (byte)0xA5, (byte)0xC3 };
-                int sizeTransferred = 0;
+                System.out.println("Init FT4222B as GPIO");
+                dev1.gpioInit();                    //Init device B as GPIO
 
-                System.out.printf("I2C master write data to the slave(%#x)... \n", slaveAddr);
-                sizeTransferred = dev.i2cMasterWrite(slaveAddr, masterData);
-                System.out.printf("bytes written: %d\n", sizeTransferred);
+                System.out.println("Enable Interrupt, GPIO3 acts as an input pin");
+                dev1.setWakeUpInterrupt(true);
+                dev1.setInterruptTrigger(GpioTrigger.GPIO_TRIGGER_LEVEL_HIGH);
 
-                System.out.printf("I2C master read data from the slave(%#x)... \n", slaveAddr);
-                byte[] slaveData = new byte[2];
-                dev.i2cMasterRead(slaveAddr, slaveData, 2);
-
-                System.out.print("  slave data: ");
-                for (int i = 0; i < slaveData.length; ++i) {
-                    System.out.printf("%#x, ", slaveData[i]);
-                }
-                System.out.println();
-
-                System.out.println("UnInitialize FT4222");
-                dev.unInitialize();
-
-                System.out.println("Close FT device");
-                dev.close();
+                dev.i2cMasterReadAndPrint(buffer, length); // Read out 5 bytes after boot
 
             } else {
                 System.out.println("No FT4222 device is found!");
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        List<FT4222Device> devices = selectDevices();
+        FT4222Device dev = (FT4222Device) devices.get(0);
+        FT4222Device dev1 = (FT4222Device) devices.get(1);
+
+
+        dev.i2cMasterWriteAndPrint(array);
+        TimeUnit.MILLISECONDS.sleep(1000);//Time beetween ON/OFF
+
+        int i = 0;
+        while(true)
+        {
+            if (dev1.gpioGetTriggerStatus() != 0)
+            {
+                dev.i2cMasterReadAndPrint(buffer1, length1);   // read response,
+                i = 1;
+            }
+            else if(i == 1)
+            {
+                System.out.println("Unitialize FT4222");
+                System.out.println("UnInitialize FT4222");
+                dev.unInitialize();
+                dev1.unInitialize();
+                System.out.println("Close FT device");
+                dev.close();
+                dev1.close();
+            }
         }
     }
 
@@ -107,3 +138,6 @@ public final class I2cMasterSample {
         return devices;
     }
 }
+
+
+

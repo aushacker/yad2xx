@@ -34,7 +34,7 @@ public class FT4222Device extends Device {
 
     /**
      * Constructor intended for internal library use only. Use
-     * {@link net.sf.yad2xx.FTDInterface#getDevices()}.
+     * {@link net.sf.yad2xx.FTDIInterface#getDevices()}.
      *
      * @param index
      * @param flags
@@ -89,7 +89,7 @@ public class FT4222Device extends Device {
      * This function returns the maximum packet size in a transaction. It will
      * be affected by different bus speeds, chip modes, and functions. The
      * maximum transfer size is maximum size in writing path.
-     * 
+     *
      * @return maximum packet size
      * @throws FTDIException
      *             API call failed, see exception fields for details. More
@@ -113,7 +113,7 @@ public class FT4222Device extends Device {
                 // e.g. i2cMasterInit
                 throw new IllegalStateException("FT4222 device not initialized", e);
             } else {
-                throw e; 
+                throw e;
             }
         }
     }
@@ -161,7 +161,7 @@ public class FT4222Device extends Device {
      * @param slaveAddress
      *            address of the target i2c slave
      * @param buffer
-     *            
+     *
      * @param bytesToRead
      *            max number of bytes to read from the device
      * @return sizeTransferred
@@ -173,6 +173,32 @@ public class FT4222Device extends Device {
      */
     public int i2cMasterRead(int slaveAddress, byte[] buffer, int bytesToRead) throws FTDIException {
         return FTDIInterface.i2cMasterRead(getHandle(), slaveAddress, buffer, bytesToRead);
+    }
+
+    //TODO added by Peter
+    /**
+     * Function added for personal research reads out the message and
+     * prints it out
+     * @param buffer
+     *              address of the target i2c slave
+     * @param length
+     *              max number of bytes to read from the device
+     * @return
+     * @throws FTDIException
+     * @since 2.2
+     */
+    public int i2cMasterReadAndPrint(byte[] buffer, int length) throws FTDIException
+    {
+        int slaveAddr = 0x28;
+        i2cMasterRead(slaveAddr, buffer, length);
+
+        System.out.printf("I2C master read data from the slave(%#x)... \n", slaveAddr);
+        System.out.print("  slave data: ");
+        for (int i = 0; i < length; ++i) {
+            System.out.printf("%#x, ", buffer[i]);
+        }
+        System.out.println();
+        return 0;
     }
 
     /**
@@ -189,11 +215,29 @@ public class FT4222Device extends Device {
      *             API call failed, see exception fields for details.
      *             More information can be found in AN_329.
      * @see FTDIInterface#i2cMasterWrite(long, int, byte[], int)
-     * @since 2.1
+     * @since 2.2
      */
     public int i2cMasterWrite(int slaveAddress, byte[] buffer) throws FTDIException {
         return FTDIInterface.i2cMasterWrite(getHandle(), slaveAddress, buffer,
-                                            buffer.length);
+                buffer.length);
+    }
+
+    //TODO added by Peter
+    /**
+     * Functions added for personal research, writes and
+     * prints out the size of written message
+     * @param bytes
+     * @throws FTDIException
+     * @since 2.1
+     */
+    public void i2cMasterWriteAndPrint(byte[] bytes) throws FTDIException
+    {
+        int slaveAddr = 0x28;
+        int sizeTransferred = 0;
+
+        System.out.printf("I2C master write data to the slave(%#x)... \n", slaveAddr);
+        sizeTransferred = i2cMasterWrite(slaveAddr, bytes);
+        System.out.printf("bytes written: %d\n", sizeTransferred);
     }
 
     /**
@@ -210,6 +254,37 @@ public class FT4222Device extends Device {
      */
     public void setClock(ClockRate rate) throws FTDIException {
         FTDIInterface.setClock(getHandle(), rate.ordinal());
+    }
+
+    //TODO added by Peter
+    /**
+     * Initialize the GPIO interface of the FT4222H.
+     * Please note the GPIO interface is available on the 2nd
+     * USB interface in mode 0 or on the 4th USB interface in mode 1.
+     *
+     * @throws FTDIException
+     *            API call failed, see exception fields for details. More
+     *            information can be found in AN_329.
+     * @since 2.2
+     */
+    public void gpioInit() throws FTDIException {
+        FTDIInterface.gpioInit(getHandle());
+    }
+
+    //TODO added by Peter
+    /**
+     * Get the size of trigger event queue.
+     *
+     * Prerequisite:
+     * FT4222_GPIO_Init
+     *
+     * @throws FTDIException
+     *            API call failed, see exception fields for details. More
+     *            information can be found in AN_329.
+     * @since 2.2
+     */
+    public int gpioGetTriggerStatus() throws FTDIException{
+        return FTDIInterface.gpioGetTriggerStatus(getHandle());
     }
 
     /**

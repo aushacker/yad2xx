@@ -1589,7 +1589,110 @@ JNIEXPORT jobject JNICALL Java_net_sf_yad2xx_FTDIInterface_getVersion
 
 	return result;
 }
+//TODO added by Peter
+/*
+ * Initialize the GPIO interface of the FT4222H.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    gpioInit
+ * Signature: (JI)V
+ */
 
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_gpioInit
+  (JNIEnv * env, jclass clsFace, jlong handle)
+{
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+
+    GPIO_Dir gpioDir[4];
+    gpioDir[3] = GPIO_INPUT;    //Set pin3 as GPIO INPUT
+
+    ftHandle = (FT_HANDLE) handle;
+    ftStatus = FT4222_GPIO_Init(ftHandle, gpioDir);
+
+    if (ftStatus == FT4222_OK) {
+        return;
+    } else {
+        ThrowFTDIException(env, ftStatus, "FT4222_GPIO_Init");
+        return;
+    }
+}
+
+/*
+ * Read the status of a specified GPIO pin or interrupt register.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    gpioRead
+ * Signature: (J)V
+ */
+ /*
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_gpioRead
+  (JNIEnv * env, jclass clsIFace, jlong handle)
+{
+    	FT_HANDLE ftHandle;
+    	FT_STATUS ftStatus;
+
+    	ftHandle = (FT_HANDLE) handle;
+    	ftStatus = FT4222_GPIO_Read(ftHandle, GPIO_PORT3, &gpioValue);
+
+    	if (ftStatus == FT4222_OK) {
+    		return;
+    	} else {
+    		ThrowFTDIException(env, ftStatus, "FT4222_GPIO_Read");
+    		return;
+    	}
+}
+*/
+//TODO added by Peter
+/*
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    gpioGetTriggerStatus
+ * Signature: (J)I
+*/
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_gpioGetTriggerStatus
+  (JNIEnv *env, jclass clsFace, jlong handle)
+    {
+            short queueSize; //uint16_t
+        	FT_HANDLE ftHandle;
+        	FT_STATUS ftStatus;
+            GPIO_Trigger tmpBuf[10];
+        	ftHandle = (FT_HANDLE) handle;
+
+        	if( FT4222_GPIO_GetTriggerStatus(ftHandle, GPIO_PORT3, &queueSize) == FT4222_OK) // ftHandle2!!!
+                {
+                    if(queueSize > 0)
+                    {
+                        short sizeofRead;
+
+                        if(FT4222_GPIO_ReadTriggerQueue(ftHandle, GPIO_PORT3, &tmpBuf[0], queueSize, &sizeofRead) == FT4222_OK) //ftHandle2!!!!
+                            {
+                                return 1;
+                            }
+                    }
+                   return 0;
+                }
+    }
+
+//TODO added by Peter
+jboolean gpioValue;
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_gpioRead
+  (JNIEnv * env, jclass clsIFace, jlong handle)
+  {
+      	FT_HANDLE ftHandle;
+      	FT_STATUS ftStatus;
+
+      	ftHandle = (FT_HANDLE) handle;
+      	ftStatus = FT4222_GPIO_Read(ftHandle, GPIO_PORT3, &gpioValue);
+        {
+              	if (ftStatus == FT4222_OK) {
+              		return gpioValue;
+              	}
+              	 else {
+              		ThrowFTDIException(env, ftStatus, "FT4222_GPIO_Read");
+              		return;
+              	}
+        }
+  }
 
 /*
  * Initialize the FT4222H as an I2C master with the requested I2C speed.
