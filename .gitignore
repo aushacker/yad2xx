@@ -17,3 +17,6 @@
 .project
 .settings
 .checkstyle
+**/.project
+**/.settings
+**/.checkstyle

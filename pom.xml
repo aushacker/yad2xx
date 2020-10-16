@@ -1,78 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>net.sf.yad2xx</groupId>
-	<artifactId>yad2xx</artifactId>
-	<version>2.1-SNAPSHOT</version>
+    <groupId>net.sf.yad2xx</groupId>
+    <artifactId>yad2xx</artifactId>
+    <version>2.1-SNAPSHOT</version>
 
-	<packaging>pom</packaging>
+    <packaging>pom</packaging>
 
-	<name>Yet Another JNI-D2XX Interface Library.</name>
+    <name>Yet Another JNI-D2XX Interface Library.</name>
 
-	<description>
-	   A Java Native Interface (JNI) library for the FTDI D2XX USB driver. 
-	</description>
+    <description>
+       A Java Native Interface (JNI) library for the FTDI D2XX USB driver. 
+    </description>
 
-	<inceptionYear>2012</inceptionYear>
-	<url>https://github.com/aushacker/yad2xx/</url>
+    <inceptionYear>2012</inceptionYear>
+    <url>https://github.com/aushacker/yad2xx/</url>
 
-	<licenses>
-		<license>
-			<name>GNU Lesser General Public License v3.0</name>
-			<url>http://www.gnu.org/licenses/lgpl.html</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License v3.0</name>
+            <url>http://www.gnu.org/licenses/lgpl.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-	<scm>
-		<url>https://github.com/aushacker/yad2xx.git</url>
-	</scm>
+    <scm>
+        <url>https://github.com/aushacker/yad2xx.git</url>
+    </scm>
 
-	<issueManagement>
-		<system>GitHub</system>
-		<url>https://github.com/aushacker/yad2xx/issues</url>
-	</issueManagement>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/aushacker/yad2xx/issues</url>
+    </issueManagement>
 
-	<developers>
-		<developer>
-			<id>aushacker</id>
-			<name>Stephen Davies</name>
-		</developer>
-	</developers>
+    <developers>
+        <developer>
+            <id>aushacker</id>
+            <name>Stephen Davies</name>
+        </developer>
+    </developers>
 
-	<!-- Multi-module project, native libraries are included based on profile 
-		below. -->
-	<modules>
-		<module>yad2xxJava</module>
-	</modules>
+    <!-- Multi-module project, native libraries are included based on profile 
+        below. -->
+    <modules>
+        <module>yad2xxJava</module>
+    </modules>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-	</properties>
+    </properties>
 
-	<build>
-		<defaultGoal>install</defaultGoal>
-		<pluginManagement>
+    <build>
+        <defaultGoal>install</defaultGoal>
+        <pluginManagement>
 
-			<plugins>
-				<plugin>
-					<artifactId>maven-eclipse-plugin</artifactId>
-					<version>2.9</version>
-					<configuration>
-						<downloadJavadocs>true</downloadJavadocs>
-						<downloadSources>true</downloadSources>
-						<additionalProjectnatures>
-							<projectnature>org.eclipse.m2e.core.maven2Nature</projectnature>
-						</additionalProjectnatures>
-						<additionalBuildcommands>
-							<buildcommand>org.eclipse.m2e.core.maven2Builder</buildcommand>
-						</additionalBuildcommands>
-					</configuration>
-				</plugin>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-eclipse-plugin</artifactId>
+                    <version>2.9</version>
+                    <configuration>
+                        <downloadJavadocs>true</downloadJavadocs>
+                        <downloadSources>true</downloadSources>
+                        <additionalProjectnatures>
+                            <projectnature>org.eclipse.m2e.core.maven2Nature</projectnature>
+                        </additionalProjectnatures>
+                        <additionalBuildcommands>
+                            <buildcommand>org.eclipse.m2e.core.maven2Builder</buildcommand>
+                        </additionalBuildcommands>
+                    </configuration>
+                </plugin>
 
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -80,53 +80,53 @@
                     <version>1.0-alpha-8</version>
                 </plugin>
 
-			</plugins>
-		</pluginManagement>
-	</build>
+            </plugins>
+        </pluginManagement>
+    </build>
 
-	<profiles>
-		<profile>
-			<id>Mac</id>
-			<activation>
-				<os>
-					<family>Mac</family>
-				</os>
-			</activation>
+    <profiles>
+        <profile>
+            <id>Mac</id>
+            <activation>
+                <os>
+                    <family>Mac</family>
+                </os>
+            </activation>
 
-			<modules>
-				<module>yad2xxJnilib</module>
-			</modules>
+            <modules>
+                <module>yad2xxJnilib</module>
+            </modules>
 
-		</profile>
+        </profile>
 
-		<profile>
-			<id>Windows</id>
-			<activation>
-				<os>
-					<family>Windows</family>
-				</os>
-			</activation>
+        <profile>
+            <id>Windows</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
 
-			<modules>
-				<module>yad2xxDll</module>
-			</modules>
+            <modules>
+                <module>yad2xxDll</module>
+            </modules>
 
-		</profile>
+        </profile>
 
-		<profile>
-			<id>Linux</id>
-			<activation>
-				<os>
-					<family>unix</family>
-					<name>Linux</name>
-				</os>
-			</activation>
+        <profile>
+            <id>Linux</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                    <name>Linux</name>
+                </os>
+            </activation>
 
-			<modules>
-				<module>yad2xxSo</module>
-			</modules>
+            <modules>
+                <module>yad2xxSo</module>
+            </modules>
 
-		</profile>
-	</profiles>
+        </profile>
+    </profiles>
 
 </project>
