@@ -18,6 +18,10 @@
  */
 package net.sf.yad2xx;
 
+import net.sf.yad2xx.ft4222.SpiCPhase;
+import net.sf.yad2xx.ft4222.SpiCPolarity;
+import net.sf.yad2xx.ft4222.SpiClock;
+import net.sf.yad2xx.ft4222.SpiMode;
 import net.sf.yad2xx.ft4222.Version;
 
 /**
@@ -803,7 +807,7 @@ public class FTDIInterface {
      * Enable or disable wakeup/interrupt (FT4222 only).
      *
      * @param ftHandle
-     *            D2XX device handle
+     *            FT4222 device handle
      * @param enable
      * @throws FTDIException
      *            API call failed, see exception fields for details. More
@@ -812,6 +816,90 @@ public class FTDIInterface {
      * @since 2.1
      */
     static native void setWakeUpInterrupt(long ftHandle, boolean enable) throws FTDIException;
+
+    /**
+     * Initialize the FT4222H as an SPI master.
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @param ioLine
+     *            SPI transmission lines - single, dual or quad
+     * @param div
+     *            system clock divider
+     * @param cpol
+     *            SPI bus CLK pin polarity
+     * @param cpha
+     *            selects clock edge to shift and sample
+     * @param ssoMap
+     *            Slave selection output pins.
+     *
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @throws IllegalStateException
+     *             Device must be opened before calling this method.
+     * @see FT4222Device#spiMasterInit(SpiMode, SpiClock, SpiCPolarity, SpiCPhase,
+     *      int)
+     * @since 2.1
+     */
+    static native void spiMasterInit(long ftHandle, int ioLine, int div, int cpol, int cpha, int ssoMap)
+            throws FTDIException;
+
+    /**
+     * Switch the FT4222H SPI master to single, dual, or quad mode.
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @param spiMode
+     *            SPI transmission lines - single, dual or quad
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @throws IllegalStateException
+     *             Device must be opened before calling this method.
+     * @see FT4222Device#spiMasterSetLines(SpiMode)
+     * @since 2.1
+     */
+    static native void spiMasterSetLines(long ftHandle, int spiMode)
+            throws FTDIException;
+
+    /**
+     * Under SPI single mode, read data from an SPI slave.
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @param buffer
+     *            buffer that receives the data from the device
+     * @param bytesToRead
+     *            number of bytes to read from the device
+     * @param isEndTransaction
+     *            If TRUE the Slave Select pin will be raised at the end of the read 
+     * @return number of bytes read from the device
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @throws IllegalStateException
+     *             Device must be opened before calling this method.
+     * @see FT4222Device#spiMasterSingleRead(byte[], int, boolean)
+     * @since 2.1
+     */
+    static native int spiMasterSingleRead(long ftHandle, byte[] buffer, int bytesToRead, boolean isEndTransaction)
+            throws FTDIException;
+
+    /**
+     * Reset the SPI transaction (FT4222 only).
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @param spiIdx
+     *            The index of the SPI transaction
+     * @throws FTDIException
+     *            API call failed, see exception fields for details. More
+     *            information can be found in AN_329.
+     * @see FT4222Device#spiTransactionReset(int)
+     * @since 2.1
+     */
+    static native void spiResetTransaction(long ftHandle, int spiIdx) throws FTDIException;
 
 	/**
 	 * Stops the driver's IN task.

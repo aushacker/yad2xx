@@ -21,6 +21,10 @@ package net.sf.yad2xx;
 
 import net.sf.yad2xx.ft4222.ClockRate;
 import net.sf.yad2xx.ft4222.GpioTrigger;
+import net.sf.yad2xx.ft4222.SpiCPhase;
+import net.sf.yad2xx.ft4222.SpiCPolarity;
+import net.sf.yad2xx.ft4222.SpiClock;
+import net.sf.yad2xx.ft4222.SpiMode;
 import net.sf.yad2xx.ft4222.Version;
 
 /**
@@ -302,6 +306,127 @@ public class FT4222Device extends Device {
         if (!isOpen())
             throw new IllegalStateException("Device not open");
         FTDIInterface.setWakeUpInterrupt(getHandle(), enable);
+    }
+
+    /**
+     * Initialize the FT4222H as an SPI master.
+     * <p>
+     * In order to support various types of SPI slave devices, the FT4222H SPI
+     * master is configurable using the following parameters:
+     * <ul>
+     * <li>IO lines: SPI transmission lines. The FT4222H SPI supports single, dual,
+     * or quad transmission mode. An application may override this initial selection
+     * dynamically using FT4222_SPIMaster_SetLines. For example, commands might be
+     * sent in single mode but data transferred in dual or quad mode.
+     * <li>Clock divider: SPI clock rate is subject to system clock. The FT4222H SPI
+     * clock could be 1/2, 1/4, 1/8, 1/16, 1/32, 1/64, 1/128, 1/256, or 1/512 system
+     * clock rate.
+     * <li>Clock polarity: Active high or active low.
+     * <li>Clock phase: Data is sampled on the leading (first) or trailing (second)
+     * clock edge.
+     * <li>Slave selection output pins: Select slave devices by ss0o, ss1o, ss2o,
+     * ss3o. The FT4222H supports active low only.
+     * <li>There is only one setting stored in the MCU. If there are multi SPI
+     * masters to be initialized, keep all settings the same, including ssoMap.
+     * </ul>
+     * Please note that the FT4222H has only one SPI controller. Even though the
+     * FT4222H provides up to 4 interfaces for connecting up to 4 SPI slave devices
+     * as per Figure 1.4, the 4 slave devices share the same SPI data bus: MOSI,
+     * MISO, and SCK. A user can decide how to map the 4 interfaces to the 4 SS
+     * signals (ss0o, ss1o, ss2o and ss3o) by the ssoMap parameter.
+     * <p>
+     * The 4 interfaces cannot work simultaneously because there is only one data
+     * bus.
+     *
+     * @param ioLine
+     *            SPI transmission lines - single, dual or quad
+     * @param div
+     *            system clock divider
+     * @param cpol
+     *            SPI bus CLK pin polarity
+     * @param cpha
+     *            selects clock edge to shift and sample
+     * @param ssoMap
+     *            Slave selection output pins. It’s a bitmap:
+     *            <ul>
+     *            <li>Bit 0: select device connected with ss0o
+     *            <li>Bit 1: select device connected with ss1o
+     *            <li>Bit 2: select device connected with ss2o
+     *            <li>Bit 3: select device connected with ss3o
+     *            </ul>
+     *
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @throws IllegalStateException
+     *             Device must be opened before calling this method.
+     * @see FTDIInterface#spiMasterInit(long, int, int, int, int, int)
+     * @since 2.1
+     */
+    public void spiMasterInit(SpiMode ioLine, SpiClock div, SpiCPolarity cpol, SpiCPhase cpha, int ssoMap)
+            throws FTDIException {
+        FTDIInterface.spiMasterInit(getHandle(), ioLine.getValue(), div.ordinal(), cpol.ordinal(), cpha.ordinal(),
+                ssoMap);
+    }
+
+    /**
+     * Switch the FT4222H SPI master to single, dual, or quad mode. This
+     * overrides the mode passed to FT4222_SPIMaster_init. This might be
+     * needed if a device accepts commands in single mode but data transfer
+     * is to use dual or quad mode.
+     *
+     * @param spiMode
+     *            SPI transmission lines - single, dual or quad
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @see FTDIInterface#spiMasterSetLines(long, int)
+     * @since 2.1
+     */
+    public void spiMasterSetLines(SpiMode spiMode) throws FTDIException {
+        FTDIInterface.spiMasterSetLines(getHandle(), spiMode.getValue());
+    }
+
+    /**
+     * Under SPI single mode, read data from an SPI slave.
+     *
+     * @param buffer
+     *            buffer that receives the data from the device
+     * @param bytesToRead
+     *            number of bytes to read from the device
+     * @param isEndTransaction
+     *            If TRUE the Slave Select pin will be raised at the end of the read 
+     * @return number of bytes read from the device
+     * @throws FTDIException
+     *             API call failed, see exception fields for details.
+     *             More information can be found in AN_329.
+     * @see FTDIInterface#spiMasterSingleRead(long, byte[], int, boolean)
+     * @since 2.1
+     */
+    public int spiMasterSingleRead(byte[] buffer, int bytesToRead, boolean isEndTransaction) throws FTDIException {
+        return FTDIInterface.spiMasterSingleRead(getHandle(), buffer, bytesToRead, isEndTransaction);
+    }
+
+    /**
+     * Reset the SPI transaction. It would purge receive and transmit buffers in the
+     * device and reset the transaction state. D2XX has similar function(FT_PURGE)
+     * but strongly recommend to use FT4222_SPI_ResetTransaction.
+     *
+     * @param spiIdx
+     *            The index of the SPI transaction, which ranges from 0~3 depending
+     *            on the mode of the chip. For example, under mode 0 and mode 3 as
+     *            we mentioned in chapter 1.1, it should be 0 because there is only
+     *            one SPI master or slave connection, and so forth.
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @throws IllegalStateException
+     *             Device must be opened before calling this method.
+     * @see FTDIInterface#spiResetTransaction(long, int)
+     * @since 2.1
+     */
+    public void spiResetTransaction(int spiIdx) throws FTDIException {
+        FTDIInterface.spiResetTransaction(getHandle(), spiIdx);
     }
 
     /**

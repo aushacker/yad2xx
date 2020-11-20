@@ -90,6 +90,7 @@ public class GeneralFunctionTest {
                 dev.i2cMasterInit(400);
                 System.out.println("\nMaximum transfer size: " + dev.getMaxTransferSize());
 
+                dev.unInitialize();
                 dev.close();
             }
         }
