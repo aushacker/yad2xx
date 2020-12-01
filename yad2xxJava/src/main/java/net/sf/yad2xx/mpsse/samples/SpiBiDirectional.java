@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Stephen Davies
+ * Copyright 2018-2020 Stephen Davies
  * 
  * This file is part of yad2xx.
  * 
@@ -38,65 +38,65 @@ import net.sf.yad2xx.samples.AbstractSample;
  * <li>xDBUS3 - CS (CS)</li>
  * </ul>
  *
- * @author		Stephen Davies
- * @since		6 July 2018
- * @since		1.0
+ * @author      Stephen Davies
+ * @since       6 July 2018
+ * @since       1.0
  */
 public class SpiBiDirectional extends AbstractSample {
 
-	// SPI clock frequency in Hertz
-	private static final int DESIRED_CLOCK = 500000;
-	
-	public static void main(String[] args) {
-		SpiBiDirectional dotStar = new SpiBiDirectional();
-		
-		try {
-			if (dotStar.processOptions(args)) {
-				dotStar.run();
-			} else {
-				dotStar.displayUsage();
-			}
-		}
-		catch (Exception e) {
-			System.err.println(e.getMessage());
-			dotStar.displayUsage();
-		}
-	}
-	
-	private void displayUsage() {
-		displayUsage("net.sf.yad2xx.mpsse.samples.SpiBiDirectional [-h] [-p hex]");
-	}
-	
-	private void run() {
-		PrintStream out = System.out;
+    // SPI clock frequency in Hertz
+    private static final int DESIRED_CLOCK = 500000;
+    
+    public static void main(String[] args) {
+        SpiBiDirectional biDi = new SpiBiDirectional();
+        
+        try {
+            if (biDi.processOptions(args)) {
+                biDi.run();
+            } else {
+                biDi.displayUsage();
+            }
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+            biDi.displayUsage();
+        }
+    }
+    
+    private void displayUsage() {
+        displayUsage("net.sf.yad2xx.mpsse.samples.SpiBiDirectional [-h] [-p hex]");
+    }
+    
+    private void run() {
+        PrintStream out = System.out;
 
-		try {
-			out.println("SPI BiDirectional Port Example");
-			out.println("------------------------------");
-			printProlog(out);
-			
-			Device[] devices = FTDIInterface.getDevices();
-			
-			if (devices.length == 0) {
-				out.println("*** No FTDI devices found. Possible VID/PID or driver problem. ***");
-				return;
-			}
-			
-			Device device = devices[0];
-			Spi spi = new Spi(device, DESIRED_CLOCK, SpiMode.M0, false);
-			spi.open();
+        try {
+            out.println("SPI BiDirectional Port Example");
+            out.println("------------------------------");
+            printProlog(out);
+            
+            Device[] devices = FTDIInterface.getDevices();
+            
+            if (devices.length == 0) {
+                out.println("*** No FTDI devices found. Possible VID/PID or driver problem. ***");
+                return;
+            }
+            
+            Device device = devices[0];
+            Spi spi = new Spi(device, DESIRED_CLOCK, SpiMode.M0, false);
+            spi.open();
 
-			byte[] result = spi.transactReadWrite((byte) 0xA5);
+            byte[] result = spi.transactReadWrite((byte) 0xA5);
 
-			result = spi.transactReadWrite(new byte[10000]);
+            result = spi.transactReadWrite(new byte[10000]);
 
-			out.print("Result: ");
-			out.println(Integer.toHexString(result[0]));
+            out.print("Result: ");
+            out.println(Integer.toHexString(result[0]));
 
-			spi.close();
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
+            spi.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+    }
 }
