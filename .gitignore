@@ -12,3 +12,6 @@
 *.zip
 *.tar.gz
 *.rar
+
+**/.classpath
+**/.project
