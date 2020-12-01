@@ -88,6 +88,7 @@ public enum TapState {
 	 * Encode state transition graph from IEEE 1194.1 in individual states.
 	 */
 	static {
+        //                    zero, one
 		RESET.setNextStates(IDLE, RESET);
 		IDLE.setNextStates(IDLE, DRSELECT);
 		DRSELECT.setNextStates(DRCAPTURE, IRSELECT);
@@ -107,7 +108,7 @@ public enum TapState {
 	}
 	
 	/**
-	 * Tests if this state has next state as one of its two possible
+	 * Tests if state (this) has next state as one of its two possible
 	 * transitions.
 	 * 
 	 * @param	next			desired next state
@@ -119,7 +120,7 @@ public enum TapState {
 	}
 
 	/**
-	 * Returns next state based on tms value.
+	 * Returns next state based on TMS value.
 	 * 
 	 * @param	tms				boolean value
 	 * @return					next state based on tms value
