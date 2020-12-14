@@ -1,8 +1,8 @@
 /*
  * Copyright 2016-2018 Stephen Davies
- * 
+ *
  * This file is part of yad2xx.
- * 
+ *
  * yad2xx is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -41,128 +41,138 @@ import net.sf.yad2xx.FTDIInterface;
  * </ol>
  * <p>
  * Light should be full RED.
- * 
- * @author		Stephen Davies
- * @since		20 May 2016
- * @since		0.4
+ *
+ * @author Stephen Davies
+ * @since 20 May 2016
+ * @since 0.4
  */
 public class DmxSample extends AbstractSample {
 
-	private static final int DMX_BAUD_RATE = 250000;
-	
-	// Use 192 of possible 512 channels.
-	// Plus 1 to allow for start code (0).
-	private static final int CHANNEL_COUNT = 192 + 1;
-	
-	private boolean running;
-	
-	private byte[] channels;
-	
-	private Device device;
-	
+    /**
+     * DMX baud rate.
+     */
+    private static final int DMX_BAUD_RATE = 250000;
+
+    /**
+     * Maximum channel value.
+     */
+    private static final int FULL_ON = 0xFF;
+
+    /**
+     * Use 192 of possible 512 channels.
+     * Plus 1 to allow for start code (0).
+     */
+    private static final int CHANNEL_COUNT = 192 + 1;
+
+    private boolean running;
+
+    private byte[] channels;
+
+    private Device device;
+
 	public DmxSample() {
 		running = true;
 		channels = new byte[CHANNEL_COUNT];
 
+		// Default setting is for a channels to be off/zero
 		for (int i = 0; i < CHANNEL_COUNT; i++) {
 			channels[i] = (byte) 0;
 		}
-		
-		channels[1] = (byte) 0xff;	// Intensity/strobe channel
-		channels[2] = (byte) 0xff;	// RED channel
+
+		channels[1] = (byte) FULL_ON;  // Intensity/strobe channel
+		channels[2] = (byte) FULL_ON;  // RED channel
 	}
-	
+
 	private void displayUsage() {
 		displayUsage("net.sf.yad2xx.samples.DmxSample [-h] [-p hex]");
 	}
-	
-	public static void main(String[] args) {
-		DmxSample dmx = new DmxSample();
-		
-		try {
-			if (dmx.processOptions(args)) {
-				dmx.run();
-			} else {
-				dmx.displayUsage();
-			}
-		}
-		catch (Exception e) {
-			System.err.println(e.getMessage());
-			dmx.displayUsage();
-		}
-	}
-	
-	private void run() {
-		PrintStream out = System.out;
-		
-		try {
-			
-			out.println("DMX Sample");
-			out.println("----------");
-			printProlog(out);
-			
-			Device[] devices = FTDIInterface.getDevices();
-			
-			if (devices.length == 0) {
-				out.println("*** No FTDI devices found. Possible VID/PID or driver problem. ***");
-				return;
-			}
-			
-			device = devices[0];
-			
-			device.open();
-			device.reset();
-			delay(10);
-			
-			device.setDataCharacteristics(FTDIConstants.FT_BITS_8,
-					FTDIConstants.FT_STOP_BITS_2,
-					FTDIConstants.FT_PARITY_NONE);
-			device.setBaudRate(DMX_BAUD_RATE);
-			delay(10);
-			
-			Thread background = new Thread() {
-				public void run() {
-					try {
-						while (running) {
-							sendDmxFrame();
-							delay(1000);
-						}
-					}
-					catch (Exception e) {
-						running = false;
-						e.printStackTrace();
-					}
-				}
-			};
-			
-			background.start();
-			
-			InputStream in = System.in;
-			
-			while (running) {
-				int c = in.read();
-				if (c == -1) {
-					running = false;
-				} else {
-					if (c == 'q') {
-						running = false;
-					} else if (c == '+') {
-						//if ()
-					}
-				}
-			}
-			
-			device.close();
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
-	
-	private void sendDmxFrame() throws FTDIException {
-		device.setBreak(true);		// BREAK indicates start of frame
-		device.setBreak(false);
-		
-		device.write(channels);		// START code plus 192 channel bytes
-	}
+
+    public static void main(String[] args) {
+        DmxSample dmx = new DmxSample();
+
+        try {
+            if (dmx.processOptions(args)) {
+                dmx.run();
+            } else {
+                dmx.displayUsage();
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            dmx.displayUsage();
+        }
+    }
+
+    private void run() {
+        PrintStream out = System.out;
+
+        try {
+
+            out.println("DMX Sample");
+            out.println("----------");
+            printProlog(out);
+
+            Device[] devices = FTDIInterface.getDevices();
+
+            if (devices.length == 0) {
+                out.println("*** No FTDI devices found. "
+                          + "Possible VID/PID or driver problem. ***");
+                return;
+            }
+
+            device = devices[0];
+
+            device.open();
+            device.reset();
+            delay(10);
+
+            device.setDataCharacteristics(FTDIConstants.FT_BITS_8,
+                    FTDIConstants.FT_STOP_BITS_2,
+                    FTDIConstants.FT_PARITY_NONE);
+            device.setBaudRate(DMX_BAUD_RATE);
+            delay(10);
+
+            Thread background = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        while (running) {
+                            sendDmxFrame();
+                            delay(1000);
+                        }
+                    } catch (Exception e) {
+                        running = false;
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+            background.start();
+
+            InputStream in = System.in;
+
+            while (running) {
+                int c = in.read();
+                if (c == -1) {
+                    running = false;
+                } else {
+                    if (c == 'q') {
+                        running = false;
+                    } else if (c == '+') {
+                        // if ()
+                    }
+                }
+            }
+
+            device.close();
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+    }
+
+    private void sendDmxFrame() throws FTDIException {
+        device.setBreak(true); // BREAK indicates start of frame
+        device.setBreak(false);
+
+        device.write(channels); // START code plus 192 channel bytes
+    }
 }
