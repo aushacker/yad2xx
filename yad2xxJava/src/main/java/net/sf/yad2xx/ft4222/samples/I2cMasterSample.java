@@ -51,9 +51,9 @@ public final class I2cMasterSample {
 
     public static void main(String[] args) throws FTDIException, InterruptedException {
 
-        byte[] array = {0x06, 0x01, 0x01};
-        byte[] array1 = {0x06, 0x01, 0x02};
-        byte[] array2 = {0x10, 0x02, 0x7D, 0x01};
+                byte[] array = {0x06, 0x01, 0x01};
+                byte[] array1 = {0x06, 0x01, 0x02};
+                byte[] array2 = {0x10, 0x02, 0x7D, 0x01};
 
         int length = 5;
         byte[] buffer = new byte[length];
@@ -104,24 +104,24 @@ public final class I2cMasterSample {
 
         int i = 0;
         while(true)
+    {
+        if (dev1.gpioGetTriggerStatus() != 0)
         {
-            if (dev1.gpioGetTriggerStatus() != 0)
-            {
-                dev.i2cMasterReadAndPrint(buffer1, length1);   // read response,
-                i = 1;
-            }
-            else if(i == 1)
-            {
-                System.out.println("Unitialize FT4222");
-                System.out.println("UnInitialize FT4222");
-                dev.unInitialize();
-                dev1.unInitialize();
-                System.out.println("Close FT device");
-                dev.close();
-                dev1.close();
-            }
+            dev.i2cMasterReadAndPrint(buffer1, length1);   // read response,
+            i = 1;
+        }
+        else if(i == 1)
+        {
+            System.out.println("Unitialize FT4222");
+            System.out.println("UnInitialize FT4222");
+            dev.unInitialize();
+            dev1.unInitialize();
+            System.out.println("Close FT device");
+            dev.close();
+            dev1.close();
         }
     }
+}
 
     /**
      * @return list of attached FT4222 devices.

@@ -1671,9 +1671,10 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_gpioGetTriggerStatus
                     }
                    return 0;
                 }
+
+
     }
 
-//TODO added by Peter
 jboolean gpioValue;
 JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_gpioRead
   (JNIEnv * env, jclass clsIFace, jlong handle)
@@ -1693,6 +1694,52 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_gpioRead
               	}
         }
   }
+
+/*
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    i2cMasterGetStatus
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterGetStatus
+  (JNIEnv * env, jclass clsIFace, jlong handle, jint controllerStatus)
+  {
+          	FT_HANDLE ftHandle;
+          	FT_STATUS ftStatus;
+
+          	ftHandle = (FT_HANDLE) handle;
+          	ftStatus = FT4222_I2CMaster_GetStatus(ftHandle, controllerStatus);
+
+          	if (ftStatus == FT4222_OK) {
+          		return;
+          	} else {
+          		ThrowFTDIException(env, ftStatus, "FT4222_i2cMasterGetStatus");
+          		return;
+          	}
+  }
+
+  /*
+   * Class:     net_sf_yad2xx_FTDIInterface
+   * Method:    i2cMasterReset
+   * Signature: (J)V
+   */
+
+  JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterReset
+     (JNIEnv * env, jclass clsIFace, jlong handle)
+     {
+        	FT_HANDLE ftHandle;
+        	FT_STATUS ftStatus;
+
+        	ftHandle = (FT_HANDLE) handle;
+        	ftStatus = FT4222_I2CMaster_Reset(ftHandle);
+
+        	if (ftStatus == FT4222_OK) {
+        		return;
+        	} else {
+        		ThrowFTDIException(env, ftStatus, "FT4222_I2CMaster_Reset");
+        		return;
+        	}
+     }
+
 
 /*
  * Initialize the FT4222H as an I2C master with the requested I2C speed.

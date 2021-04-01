@@ -89,7 +89,7 @@ public class FT4222Device extends Device {
      * This function returns the maximum packet size in a transaction. It will
      * be affected by different bus speeds, chip modes, and functions. The
      * maximum transfer size is maximum size in writing path.
-     *
+     * 
      * @return maximum packet size
      * @throws FTDIException
      *             API call failed, see exception fields for details. More
@@ -113,7 +113,7 @@ public class FT4222Device extends Device {
                 // e.g. i2cMasterInit
                 throw new IllegalStateException("FT4222 device not initialized", e);
             } else {
-                throw e;
+                throw e; 
             }
         }
     }
@@ -133,6 +133,14 @@ public class FT4222Device extends Device {
         if (!isOpen())
             throw new IllegalStateException("Device not open");
         return FTDIInterface.getVersion(getHandle());
+    }
+
+    public void i2cMasterGetStatus(int controllerStatus) throws FTDIException{
+        FTDIInterface.i2cMasterGetStatus(getHandle(), controllerStatus);
+    }
+
+    public void i2cMasterReset() throws FTDIException {
+        FTDIInterface.i2cMasterReset(getHandle());
     }
 
     /**
@@ -161,7 +169,7 @@ public class FT4222Device extends Device {
      * @param slaveAddress
      *            address of the target i2c slave
      * @param buffer
-     *
+     *            
      * @param bytesToRead
      *            max number of bytes to read from the device
      * @return sizeTransferred
@@ -191,9 +199,9 @@ public class FT4222Device extends Device {
     {
         int slaveAddr = 0x28;
         i2cMasterRead(slaveAddr, buffer, length);
-
-        System.out.printf("I2C master read data from the slave(%#x)... \n", slaveAddr);
-        System.out.print("  slave data: ");
+        System.out.printf("Readed bytes length: %d\n", length);
+      //  System.out.printf("I2C master read: " + Arrays.toString(buffer) +"\n");
+        System.out.print("I2C master Read: ");
         for (int i = 0; i < length; ++i) {
             System.out.printf("%#x, ", buffer[i]);
         }
@@ -219,7 +227,7 @@ public class FT4222Device extends Device {
      */
     public int i2cMasterWrite(int slaveAddress, byte[] buffer) throws FTDIException {
         return FTDIInterface.i2cMasterWrite(getHandle(), slaveAddress, buffer,
-                buffer.length);
+                                            buffer.length);
     }
 
     //TODO added by Peter
@@ -235,9 +243,14 @@ public class FT4222Device extends Device {
         int slaveAddr = 0x28;
         int sizeTransferred = 0;
 
-        System.out.printf("I2C master write data to the slave(%#x)... \n", slaveAddr);
+        //System.out.printf("I2C master write data to the slave(%#x)... \n", slaveAddr);
         sizeTransferred = i2cMasterWrite(slaveAddr, bytes);
-        System.out.printf("bytes written: %d\n", sizeTransferred);
+        System.out.printf("Written bytes length: %d\n", sizeTransferred);
+        System.out.print("I2C master write: ");
+        for (int i = 0; i < sizeTransferred; ++i) {
+            System.out.printf("%#x, ", bytes[i]);
+        }
+        System.out.println();
     }
 
     /**
