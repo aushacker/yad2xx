@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>net.sf.yad2xx</groupId>
 		<artifactId>yad2xx</artifactId>
-		<version>1.0</version>
+		<version>2.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>FTDIInterface</artifactId>
@@ -70,7 +70,8 @@
 						<linkerStartOption>-shared -m64 -Wl,--kill-at -L${env.D2XX_HOME}</linkerStartOption>
 					</linkerStartOptions>
 					<linkerEndOptions>
-						<linkerEndOption>-lftd2xx</linkerEndOption>
+                        <linkerEndOption>-lftd2xx</linkerEndOption>
+                        <linkerEndOption>-lLibFT4222</linkerEndOption>
 					</linkerEndOptions>
 
 				</configuration>

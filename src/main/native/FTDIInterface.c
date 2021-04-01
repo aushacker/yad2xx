@@ -27,6 +27,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #if defined (_WIN32)
 #include <windows.h>
@@ -34,6 +35,11 @@
 
 #include "net_sf_yad2xx_FTDIInterface.h"
 #include "ftd2xx.h"
+#include "libft4222.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  * Utility method to make it easier to handle failures.
@@ -356,6 +362,12 @@ JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
 		return NULL;  // Exception thrown
 	}
 
+	// Lookup FT4222Device.class
+	jclass ft4222deviceCls = (*env)->FindClass(env, "net/sf/yad2xx/FT4222Device");
+	if (ft4222deviceCls == NULL) {
+		return NULL;  // Exception thrown
+	}
+
 	// Allocate an array to hold the correct number of attached Devices
 	jobjectArray devices = (*env)->NewObjectArray(env, dwNumDevs, deviceCls, NULL);
 	if (devices == NULL) {
@@ -376,8 +388,14 @@ JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
 				return NULL;  // Exception thrown
 			}
 
-			DWORD i;
-			for (i = 0; i < dwNumDevs; i++) {
+			// Get the constructor for FT4222Device(int,int,int,int,int,String,String,long)
+			jmethodID ft4222cid = (*env)->GetMethodID(env, ft4222deviceCls, "<init>", "(IIIIILjava/lang/String;Ljava/lang/String;J)V");
+			if (ft4222cid == NULL) {
+				return NULL;  // Exception thrown
+			}
+
+			int64_t i;
+			for (i = 0LL; i < dwNumDevs; i++) {
 			
                 if (devInfo[i].Flags & FT_FLAGS_OPENED) {
                     // Open devices have data missing in the DevInfoList structure,
@@ -385,8 +403,6 @@ JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
                     //
                     // NB. The first argument to FT_ListDevices is interpreted as either
                     // a pointer or an integer depending on the FLAGS used.
-                    // (PVOID) cast is used to avoid an error but seems clumsy.
-                    // Is there a better way to do this?
                     //
                     ftStatus = FT_ListDevices((PVOID)i, sBuff, FT_LIST_BY_INDEX | FT_OPEN_BY_SERIAL_NUMBER);
                     serialNumber = sBuff;
@@ -414,9 +430,17 @@ JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
 					return NULL; // Exception thrown
 				}
 
-				// Construct the Device
-				jobject device = (*env)->NewObject(env, deviceCls, cid, i, devInfo[i].Flags, devInfo[i].Type, devInfo[i].ID,
-						devInfo[i].LocId, jSerial, jDesc, devInfo[i].ftHandle);
+				// Construct either a Device or FT4222Device
+				jobject device = NULL;
+				if (devInfo[i].Type >= FT_DEVICE_4222H_0 && devInfo[i].Type <= FT_DEVICE_4222_PROG) {
+					// new FT4222Device
+                    device = (*env)->NewObject(env, ft4222deviceCls, ft4222cid, i, devInfo[i].Flags, devInfo[i].Type, devInfo[i].ID,
+                                               devInfo[i].LocId, jSerial, jDesc, devInfo[i].ftHandle);
+				} else {
+					// new Device
+                    device = (*env)->NewObject(env, deviceCls, cid, i, devInfo[i].Flags, devInfo[i].Type, devInfo[i].ID,
+                                               devInfo[i].LocId, jSerial, jDesc, devInfo[i].ftHandle);
+				}
 				if (device == NULL) {
 					return NULL; // Exception thrown
 				}
@@ -571,7 +595,7 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getQueueStatus
  *
  * Class:     net_sf_yad2xx_FTDIInterface
  * Method:    getStatus
- * Signature: (J)I
+ * Signature: (J)Lnet/sf/yad2xx/DeviceStatus
  */
 JNIEXPORT jobject JNICALL Java_net_sf_yad2xx_FTDIInterface_getStatus
   (JNIEnv * env, jclass clsIFace, jlong handle)
@@ -1443,3 +1467,443 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_writeEE
 	}
 
 }
+
+//
+// *************** LibFT4222 Functions ***************************************
+//
+
+/*
+ * Perform chip software reset.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    chipReset
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_chipReset
+  (JNIEnv * env, jclass clsIFace, jlong handle)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_ChipReset(ftHandle);
+
+	if (ftStatus == FT4222_OK) {
+		return;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_ChipReset");
+		return;
+	}
+}
+
+
+/*
+ * Get the current system clock rate.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    getClock
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getClock
+  (JNIEnv * env, jclass clsIFace, jlong handle)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+	FT4222_ClockRate clk;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_GetClock(ftHandle, &clk);
+
+	if (ftStatus == FT4222_OK) {
+		return clk;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_GetClock");
+		return -1;
+	}
+}
+
+
+/*
+ * Gets the maximum packet size in a transaction (FT4222 only).
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    getMaxTransferSize
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getMaxTransferSize
+  (JNIEnv * env, jclass clsIFace, jlong handle)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+	uint16    maxSize;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_GetMaxTransferSize(ftHandle, &maxSize);
+
+	if (ftStatus == FT_OK) {
+		return maxSize;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_GetMaxTransferSize");
+		return 0;
+	}
+}
+
+
+/*
+ * Get the versions of FT4222H and LibFT4222.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    getVersion
+ * Signature: (J)Lnet/sf/yad2xx/ft4222/Version
+ */
+JNIEXPORT jobject JNICALL Java_net_sf_yad2xx_FTDIInterface_getVersion
+  (JNIEnv * env, jclass clsIFace, jlong handle)
+{
+    FT_HANDLE      ftHandle;
+    FT4222_STATUS  ftStatus;
+    FT4222_Version version;
+
+    ftHandle = (FT_HANDLE) handle;
+    ftStatus = FT4222_GetVersion(ftHandle, &version);
+
+    if (ftStatus != FT4222_OK) {
+		ThrowFTDIException(env, ftStatus, "FT4222_GetVersion");
+		return 0;
+	}
+
+    // Lookup Version class
+    jclass versionCls = (*env)->FindClass(env, "net/sf/yad2xx/ft4222/Version");
+    if (versionCls == NULL) {
+        return 0;  // Exception thrown
+    }
+
+	// Get the constructor for Version(long, long)
+	jmethodID cid = (*env)->GetMethodID(env, versionCls, "<init>", "(II)V");
+	if (cid == NULL) {
+		return 0;  // Exception thrown
+	}
+
+	jobject result = (*env)->NewObject(env, versionCls, cid, version.chipVersion, version.dllVersion);
+
+	(*env)->DeleteLocalRef(env, versionCls);
+
+	return result;
+}
+//TODO added by Peter
+/*
+ * Initialize the GPIO interface of the FT4222H.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    gpioInit
+ * Signature: (JI)V
+ */
+
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_gpioInit
+  (JNIEnv * env, jclass clsFace, jlong handle)
+{
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+
+    GPIO_Dir gpioDir[4];
+    gpioDir[3] = GPIO_INPUT;    //Set pin3 as GPIO INPUT
+
+    ftHandle = (FT_HANDLE) handle;
+    ftStatus = FT4222_GPIO_Init(ftHandle, gpioDir);
+
+    if (ftStatus == FT4222_OK) {
+        return;
+    } else {
+        ThrowFTDIException(env, ftStatus, "FT4222_GPIO_Init");
+        return;
+    }
+}
+
+/*
+ * Read the status of a specified GPIO pin or interrupt register.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    gpioRead
+ * Signature: (J)V
+ */
+ /*
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_gpioRead
+  (JNIEnv * env, jclass clsIFace, jlong handle)
+{
+    	FT_HANDLE ftHandle;
+    	FT_STATUS ftStatus;
+
+    	ftHandle = (FT_HANDLE) handle;
+    	ftStatus = FT4222_GPIO_Read(ftHandle, GPIO_PORT3, &gpioValue);
+
+    	if (ftStatus == FT4222_OK) {
+    		return;
+    	} else {
+    		ThrowFTDIException(env, ftStatus, "FT4222_GPIO_Read");
+    		return;
+    	}
+}
+*/
+//TODO added by Peter
+/*
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    gpioGetTriggerStatus
+ * Signature: (J)I
+*/
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_gpioGetTriggerStatus
+  (JNIEnv *env, jclass clsFace, jlong handle)
+    {
+            short queueSize; //uint16_t
+        	FT_HANDLE ftHandle;
+        	FT_STATUS ftStatus;
+            GPIO_Trigger tmpBuf[10];
+        	ftHandle = (FT_HANDLE) handle;
+
+        	if( FT4222_GPIO_GetTriggerStatus(ftHandle, GPIO_PORT3, &queueSize) == FT4222_OK) // ftHandle2!!!
+                {
+                    if(queueSize > 0)
+                    {
+                        short sizeofRead;
+
+                        if(FT4222_GPIO_ReadTriggerQueue(ftHandle, GPIO_PORT3, &tmpBuf[0], queueSize, &sizeofRead) == FT4222_OK) //ftHandle2!!!!
+                            {
+                                return 1;
+                            }
+                    }
+                   return 0;
+                }
+    }
+
+//TODO added by Peter
+jboolean gpioValue;
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_gpioRead
+  (JNIEnv * env, jclass clsIFace, jlong handle)
+  {
+      	FT_HANDLE ftHandle;
+      	FT_STATUS ftStatus;
+
+      	ftHandle = (FT_HANDLE) handle;
+      	ftStatus = FT4222_GPIO_Read(ftHandle, GPIO_PORT3, &gpioValue);
+        {
+              	if (ftStatus == FT4222_OK) {
+              		return gpioValue;
+              	}
+              	 else {
+              		ThrowFTDIException(env, ftStatus, "FT4222_GPIO_Read");
+              		return;
+              	}
+        }
+  }
+
+/*
+ * Initialize the FT4222H as an I2C master with the requested I2C speed.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    i2cMasterInit
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterInit
+  (JNIEnv * env, jclass clsIFace, jlong handle, jint kbps)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_I2CMaster_Init(ftHandle, kbps);
+
+	if (ftStatus == FT4222_OK) {
+		return;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_I2CMaster_Init");
+		return;
+	}
+}
+
+
+/*
+ * Read data from the specified I2C slave device with START and STOP
+ * conditions.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    i2cMasterRead
+ * Signature: (JI[BI)I
+ */
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterRead
+  (JNIEnv * env, jclass clsIFace, jlong handle, jint slaveAddress, jbyteArray buffer, jint bytesToRead)
+{
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    uint16_t  sizeTransferred;
+	jbyte     readBuffer[bytesToRead];
+
+    ftHandle = (FT_HANDLE) handle;
+    ftStatus = FT4222_I2CMaster_Read(ftHandle, slaveAddress, (uint8_t *) readBuffer, bytesToRead, &sizeTransferred);
+
+    if (ftStatus == FT4222_OK) {
+		(*env)->SetByteArrayRegion(env, buffer, 0, (jsize) sizeTransferred, readBuffer);
+        return sizeTransferred;
+    } else {
+        ThrowFTDIException(env, ftStatus, "FT4222_I2CMaster_Read");
+        return 0;
+	}
+}
+
+
+/*
+ * Write data to the specified I2C slave device with START and STOP
+ * conditions.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    i2cMasterWrite
+ * Signature: (JI[BI)I
+ */
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterWrite
+  (JNIEnv * env, jclass clsIFace, jlong handle, jint slaveAddress, jbyteArray buffer, jint bytesToWrite)
+{
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    uint16_t  sizeTransferred;
+	jbyte     writeBuffer[bytesToWrite];
+
+	(*env)->GetByteArrayRegion(env, buffer, 0, bytesToWrite, writeBuffer);
+
+    ftHandle = (FT_HANDLE) handle;
+    ftStatus = FT4222_I2CMaster_Write(ftHandle, slaveAddress, (uint8_t *) writeBuffer, bytesToWrite, &sizeTransferred);
+
+    if (ftStatus == FT4222_OK) {
+        return sizeTransferred;
+    } else {
+        ThrowFTDIException(env, ftStatus, "FT4222_I2CMaster_Write");
+        return 0;
+	}
+}
+
+
+/*
+ * Set the system clock rate.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    setClock
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setClock
+  (JNIEnv * env, jclass clsIFace, jlong handle, jlong rate)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_SetClock(ftHandle, rate);
+
+	if (ftStatus == FT4222_OK) {
+		return;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_SetClock");
+		return;
+	}
+}
+
+
+/*
+ * Set trigger condition for the pin wakeup/interrupt.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    setInterruptTrigger
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setInterruptTrigger
+  (JNIEnv * env, jclass clsIFace, jlong handle, jint trigger)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_SetInterruptTrigger(ftHandle, trigger);
+
+	if (ftStatus == FT4222_OK) {
+		return;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_SetInterruptTrigger");
+		return;
+	}
+}
+
+
+/*
+ * Enable or disable, suspend out, which will emit a signal when FT4222H
+ * enters suspend mode.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    setSuspendOut
+ * Signature: (JZ)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setSuspendOut
+  (JNIEnv * env, jclass clsIFace, jlong handle, jboolean enable)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_SetSuspendOut(ftHandle, enable);
+
+	if (ftStatus == FT4222_OK) {
+		return;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_SetSuspendOut");
+		return;
+	}
+}
+
+
+/*
+ * Enable or disable wakeup/interrupt.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    setWakeUpInterrupt
+ * Signature: (JZ)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setWakeUpInterrupt
+  (JNIEnv * env, jclass clsIFace, jlong handle, jboolean enable)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_SetWakeUpInterrupt(ftHandle, enable);
+
+	if (ftStatus == FT4222_OK) {
+		return;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_SetWakeUpInterrupt");
+		return;
+	}
+}
+
+
+/*
+ * Release allocated resources.
+ *
+ * Class:     net_sf_yad2xx_FTDIInterface
+ * Method:    unInitialize
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_unInitialize
+  (JNIEnv * env, jclass clsIFace, jlong handle)
+{
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftHandle = (FT_HANDLE) handle;
+	ftStatus = FT4222_UnInitialize(ftHandle);
+
+	if (ftStatus == FT4222_OK) {
+		return;
+	} else {
+		ThrowFTDIException(env, ftStatus, "FT4222_UnInitialize");
+		return;
+	}
+}
+
+
+#ifdef __cplusplus
+}
+#endif

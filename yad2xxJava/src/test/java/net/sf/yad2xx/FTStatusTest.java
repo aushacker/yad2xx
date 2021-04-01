@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2018 Stephen Davies
+ * Copyright 2012-2020 Stephen Davies
  * 
  * This file is part of yad2xx.
  * 
@@ -32,10 +32,21 @@ import org.junit.Test;
  */
 public class FTStatusTest {
 
-	@Test
-	public void testByOrdinalLowest() {
-		assertSame(FTStatus.FT_OK, FTStatus.byOrdinal(0));
-	}
+    /**
+     * Lowest value from D2XX.
+     */
+    @Test
+    public void testByOrdinalStandardLowest() {
+        assertSame(FTStatus.FT_OK, FTStatus.byOrdinal(0));
+    }
+
+    /**
+     * Highest value from D2XX.
+     */
+    @Test
+    public void testByOrdinalStandardHighest() {
+        assertSame(FTStatus.FT_DEVICE_LIST_NOT_READY, FTStatus.byOrdinal(19));
+    }
 
 	/**
 	 * Boundary test, enum values start at 0.
@@ -52,4 +63,22 @@ public class FTStatusTest {
 	public void testByOrdinalUpperBoundary() {
 		assertNull(FTStatus.byOrdinal(20));
 	}
+
+    /**
+     * Lowest value from LibFT4222.
+     */
+    @Test
+    public void testByOrdinalFt4222Lowest() {
+        assertSame(FTStatus.FT4222_DEVICE_NOT_SUPPORTED, FTStatus.byOrdinal(1000));
+    }
+
+    /**
+     * Highest value from LibFT4222.
+     */
+    @Test
+    public void testByOrdinalFt4222Highest() {
+        assertSame(FTStatus.FT4222_FUN_NOT_SUPPORT, FTStatus.byOrdinal(1022));
+    }
+
+
 }

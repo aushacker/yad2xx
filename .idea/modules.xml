@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/yad2xxDll/FTDIInterface.iml" filepath="$PROJECT_DIR$/yad2xxDll/FTDIInterface.iml" />
+      <module fileurl="file://$PROJECT_DIR$/yad2xx.iml" filepath="$PROJECT_DIR$/yad2xx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/yad2xxJava/yad2xxJava.iml" filepath="$PROJECT_DIR$/yad2xxJava/yad2xxJava.iml" />
+    </modules>
+  </component>
+</project>
