@@ -218,10 +218,10 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_gpioGetTriggerStatus
 /*
  * Class:     net_sf_yad2xx_FTDIInterface
  * Method:    i2cMasterGetStatus
- * Signature: (JI)V
+ * Signature: (J)I
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterGetStatus
-  (JNIEnv *, jclass, jlong, jint);
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterGetStatus
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     net_sf_yad2xx_FTDIInterface

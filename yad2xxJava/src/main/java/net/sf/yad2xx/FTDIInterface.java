@@ -53,9 +53,8 @@ public class FTDIInterface {
      * is JVM/platform dependent.
      */
     static {
-        //TODO added by peter
         //Loads the FTDIInterface.dll from src directory
-        System.load(System.getProperty("user.dir") + "\\FTDIInterface.dll");
+            System.load(System.getProperty("user.dir") + "\\FTDIInterface.dll");
     }
 
     /**
@@ -443,7 +442,7 @@ public class FTDIInterface {
      */
     static native int gpioGetTriggerStatus(long ftHandle) throws FTDIException;
 
-    static native void i2cMasterGetStatus(long ftHandle, int controllerStatus) throws FTDIException;
+    static native int i2cMasterGetStatus(long ftHandle) throws FTDIException;
 
 
     /*

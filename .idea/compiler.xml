@@ -6,13 +6,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-<<<<<<< HEAD
-        <module name="yad2xxJava" />
-        <module name="FTDIInterface" />
-=======
         <module name="FTDIInterface" />
         <module name="yad2xxJava" />
->>>>>>> origin/master
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

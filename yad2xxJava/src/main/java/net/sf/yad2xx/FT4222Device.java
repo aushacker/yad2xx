@@ -135,8 +135,8 @@ public class FT4222Device extends Device {
         return FTDIInterface.getVersion(getHandle());
     }
 
-    public void i2cMasterGetStatus(int controllerStatus) throws FTDIException{
-        FTDIInterface.i2cMasterGetStatus(getHandle(), controllerStatus);
+    public int i2cMasterGetStatus() throws FTDIException{
+      return  FTDIInterface.i2cMasterGetStatus(getHandle());
     }
 
     public void i2cMasterReset() throws FTDIException {

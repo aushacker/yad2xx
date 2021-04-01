@@ -5,10 +5,11 @@
       <artifact name="yad2xx:jar" />
     </artifacts-to-build>
   </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="1900578d-4852-4303-89f2-c0c4713f7e46" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="1900578d-4852-4303-89f2-c0c4713f7e46" name="Default Changelist" comment="added I2cMasterReset and ChipReset" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,14 +29,15 @@
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="origin" />
+        <entry key="$PROJECT_DIR$/yad2xx" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1cwdzIiawub21fezP9H6hw5sIX3" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
@@ -45,10 +47,11 @@
     <property name="project.structure.last.edited" value="Artifacts" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.32413793" />
-    <property name="settings.editor.selected.configurable" value="preferences.externalTools" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\nxf53725\IntellijIdea-Workspace\yad2xx-master\yad2xx-master\yad2xxJava\src\main\java\net\sf\yad2xx\ft4222" />
       <recent name="C:\Users\nxf53725\IntellijIdea-Workspace\yad2xx-lib4222\yad2xxJava\src\main\java\net\sf\yad2xx" />
       <recent name="C:\Users\nxf53725\IntellijIdea-Workspace\yad2xx-lib4222\yad2xxJava\src\main\java\net\sf\yad2xx\ft4222" />
       <recent name="C:\Users\nxf53725\IntellijIdea-Workspace\yad2xx-lib4222\yad2xxJava\src\main\java\net\sf\yad2xx\samples" />
@@ -99,11 +102,14 @@
         <item itemvalue="Application.I2cMasterSample" />
         <item itemvalue="Application.newVersionTest" />
         <item itemvalue="Application.ListDevices" />
+        <item itemvalue="Application.I2cMasterSample" />
+        <item itemvalue="Application.newVersionTest" />
       </list>
     </recent_temporary>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
-    <configuration />
+    <configuration>C:\Users\nxf53725\AppData\Roaming\Subversion</configuration>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -141,102 +147,27 @@
     <MESSAGE value="added I2cMasterReset and ChipReset" />
     <option name="LAST_COMMIT_MESSAGE" value="added I2cMasterReset and ChipReset" />
   </component>
-  <component name="WindowStateProjectService">
-    <state x="677" y="190" key="#I2cMasterSample" timestamp="1603270949353">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="677" y="190" key="#I2cMasterSample/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1603270949353" />
-    <state x="690" y="303" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1603271157596">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="690" y="303" key="#com.intellij.ide.util.TreeClassChooserDialog/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1603271157596" />
-    <state x="559" y="114" key="CommitChangelistDialog2" timestamp="1607685818816">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="559" y="114" key="CommitChangelistDialog2/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1607685818816" />
-    <state x="100" y="100" width="1720" height="840" key="DiffContextDialog" timestamp="1607685110414">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="100" y="100" width="1720" height="840" key="DiffContextDialog/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1607685110414" />
-    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1603356184630">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="740" y="274" key="FileChooserDialogImpl/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1603356184630" />
-    <state width="1877" height="207" key="GridCell.Tab.0.bottom" timestamp="1607686286516">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1860" height="264" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1602080318363" />
-    <state width="1877" height="207" key="GridCell.Tab.0.bottom/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1607686286516" />
-    <state width="1877" height="207" key="GridCell.Tab.0.center" timestamp="1607686286516">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1860" height="264" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1602080318362" />
-    <state width="1877" height="207" key="GridCell.Tab.0.center/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1607686286516" />
-    <state width="1877" height="207" key="GridCell.Tab.0.left" timestamp="1607686286516">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1860" height="264" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1602080318362" />
-    <state width="1877" height="207" key="GridCell.Tab.0.left/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1607686286516" />
-    <state width="1877" height="207" key="GridCell.Tab.0.right" timestamp="1607686286516">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1860" height="264" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1602080318363" />
-    <state width="1877" height="207" key="GridCell.Tab.0.right/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1607686286516" />
-    <state width="1860" height="264" key="GridCell.Tab.1.bottom" timestamp="1602080321635">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1860" height="264" key="GridCell.Tab.1.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1602080321635" />
-    <state width="1860" height="264" key="GridCell.Tab.1.center" timestamp="1602080321634">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1860" height="264" key="GridCell.Tab.1.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1602080321634" />
-    <state width="1860" height="264" key="GridCell.Tab.1.left" timestamp="1602080321633">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1860" height="264" key="GridCell.Tab.1.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1602080321633" />
-    <state width="1860" height="264" key="GridCell.Tab.1.right" timestamp="1602080321634">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1860" height="264" key="GridCell.Tab.1.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1602080321634" />
-    <state x="440" y="94" key="SettingsEditor" timestamp="1603271184661">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="440" y="94" key="SettingsEditor/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1603271184661" />
-    <state x="552" y="253" key="Vcs.Push.Dialog.v2" timestamp="1607685827314">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="552" y="253" key="Vcs.Push.Dialog.v2/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1607685827314" />
-    <state x="92" y="92" width="1736" height="856" key="com.intellij.dvcs.ui.CompareBranchesDialog" timestamp="1607685811727">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="92" y="92" width="1736" height="856" key="com.intellij.dvcs.ui.CompareBranchesDialog/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1607685811727" />
-    <state x="100" y="100" width="1720" height="840" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog" timestamp="1603270780798">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="100" y="100" width="1720" height="840" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog/2.1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1603270780798" />
-  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/yad2xxJava/src/main/java/net/sf/yad2xx/ft4222/samples/I2cMasterSample.java</url>
-          <line>109</line>
+          <line>183</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/yad2xxJava/src/main/java/net/sf/yad2xx/ft4222/samples/I2cMasterSample.java</url>
-          <line>118</line>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/yad2xxJava/src/main/java/net/sf/yad2xx/ft4222/samples/I2cMasterSample.java</url>
-          <line>112</line>
+          <line>194</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/yad2xxJava/src/main/java/net/sf/yad2xx/FTDIException.java</url>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/yad2xxJava/src/main/java/net/sf/yad2xx/ft4222/samples/I2cMasterSample.java</url>
-          <line>89</line>
-          <option name="timeStamp" value="9" />
+          <line>101</line>
+          <option name="timeStamp" value="21" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
