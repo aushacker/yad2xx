@@ -1833,6 +1833,7 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_spiMasterSetLines
  * Method:    spiMasterSingleRead
  * Signature: (J[BIZ)I
  */
+/*
 JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_spiMasterSingleRead
   (JNIEnv * env, jclass clsIFace, jlong handle, jbyteArray buffer, jint bytesToRead, jboolean isEndTransaction)
 {
@@ -1849,7 +1850,7 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_spiMasterSingleRead
         return;
     }
 }
-
+*/
 
 /*
  * Reset the SPI transaction.
