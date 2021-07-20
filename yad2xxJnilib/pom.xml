@@ -53,12 +53,12 @@
 							<directory>${env.JAVA_HOME}/include/darwin</directory>
 						</source>
 						<source>
-							<directory>/usr/local/include</directory>
+							<directory>../ftdi/macos/include</directory>
 						</source>
 					</sources>
 
 					<linkerStartOptions>
-						<linkerStartOption>-dynamiclib -L/usr/local/lib -lftd2xx -lft4222</linkerStartOption>
+						<linkerStartOption>-dynamiclib -L../ftdi/macos/lib -lftd2xx -lft4222</linkerStartOption>
 					</linkerStartOptions>
 
 				</configuration>
