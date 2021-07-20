@@ -35,14 +35,15 @@
 				<artifactId>native-maven-plugin</artifactId>
 				<extensions>true</extensions>
 				<configuration>
-				
+				    <compilerProvider>msvc</compilerProvider>
+
 					<javahClassNames>
 						<javahClassName>net.sf.yad2xx.FTDIInterface</javahClassName>
 					</javahClassNames>
 					<javahVerbose>true</javahVerbose>
 					
 					<compilerStartOptions>
-						<compilerStartOption>-m64 -mdll -mwin32</compilerStartOption>
+						<compilerStartOption>/DLL</compilerStartOption>
 					</compilerStartOptions>
 
 					<sources>
@@ -62,16 +63,16 @@
                         </source>
 						<source>
 						    <!-- FTDI supplied includes.  -->
-							<directory>${env.D2XX_HOME}</directory>
+							<directory>../ftdi/windows/include</directory>
 						</source>
 					</sources>
 
 					<linkerStartOptions>
-						<linkerStartOption>-shared -m64 -Wl,--kill-at -L${env.D2XX_HOME}</linkerStartOption>
+						<linkerStartOption>/LIBPATH:../ftdi/windows/lib</linkerStartOption>
 					</linkerStartOptions>
 					<linkerEndOptions>
                         <linkerEndOption>-lftd2xx</linkerEndOption>
-                        <linkerEndOption>-lLibFT4222</linkerEndOption>
+                        <linkerEndOption>-lLibFT4222-64</linkerEndOption>
 					</linkerEndOptions>
 
 				</configuration>
