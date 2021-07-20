@@ -53,7 +53,7 @@
 							<directory>${env.JAVA_HOME}/include/darwin</directory>
 						</source>
 						<source>
-							<directory>../ftdi/macos/include</directory>
+							<directory>../ftdi/include</directory>
 						</source>
 					</sources>
 

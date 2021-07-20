@@ -63,7 +63,7 @@
                         </source>
 						<source>
 						    <!-- FTDI supplied includes.  -->
-							<directory>../ftdi/windows/include</directory>
+							<directory>../ftdi/include</directory>
 						</source>
 					</sources>
 
