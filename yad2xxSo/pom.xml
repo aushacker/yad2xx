@@ -53,7 +53,7 @@
 							<directory>${env.JAVA_HOME}/include/linux</directory>
 						</source>
 						<source>
-							<directory>../ftdi/linux/include</directory>
+							<directory>../ftdi/include</directory>
 						</source>
 					</sources>
 
