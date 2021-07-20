@@ -191,11 +191,28 @@ public class Device {
 	/**
 	 * Useful for debugging only.
 	 * 
+	 * @return					device flags
+	 * @since   2.0
+	 */
+	public int getFlags() {
+		return flags;
+	}
+
+	/**
+	 * Useful for debugging only.
+	 * 
 	 * @return					position within the array returned by
 	 * 							{@link FTDIInterface#getDevices()}
 	 */
 	public int getIndex() {
 		return index;
+	}
+
+	/**
+	 * Allow subclass access.
+	 */
+	protected long getHandle() {
+		return ftHandle;
 	}
 
 	/**

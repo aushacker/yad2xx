@@ -37,80 +37,78 @@ import net.sf.yad2xx.samples.AbstractSample;
  */
 public class SpiEEPROMSample extends AbstractSample {
 
-    private static final int DESIRED_CLOCK = 500000;
-    
-    private static final int MEM_SIZE_BITS = 1024;
-    
-    private static final String HEX = "0123456789ABCDEF";
-    
-    //
-    // CAT93C46 opcodes
-    //
-    // 3 bit opcodes
-    private static final int OP_READ = 6;
-    private static final int OP_ERASE = 7;
-    private static final int OP_WRITE = 5;
-    // 5 bit opcodes
-    private static final int OP_WRITE_ENABLE = 0x13;
-    private static final int OP_WRITE_DISABLE = 0x10;
-    private static final int OP_ERASE_ALL = 0x12;
-    //private static final int OP_WRITE_ALL = 0x11;
+	private static final int DESIRED_CLOCK = 500000;
+	
+	private static final int MEM_SIZE_BITS = 1024;
+	
+	//
+	// CAT93C46 opcodes
+	//
+	// 3 bit opcodes
+	private static final int OP_READ = 6;
+	private static final int OP_ERASE = 7;
+	private static final int OP_WRITE = 5;
+	// 5 bit opcodes
+	private static final int OP_WRITE_ENABLE = 0x13;
+	private static final int OP_WRITE_DISABLE = 0x10;
+	private static final int OP_ERASE_ALL = 0x12;
+	//private static final int OP_WRITE_ALL = 0x11;
 
-    private Spi spi;
-    private WordSize wordSize;
-    
-    public static void main(String[] args) {
-        SpiEEPROMSample dumper = new SpiEEPROMSample(WordSize.W16);
-        
-        try {
-            if (dumper.processOptions(args)) {
-                dumper.run();
-            } else {
-                dumper.displayUsage();
-            }
-        }
-        catch (Exception e) {
-            System.err.println(e.getMessage());
-            dumper.displayUsage();
-        }
-    }
-    
-    private SpiEEPROMSample(WordSize wordSize) {
-        this.wordSize = wordSize;
-    }
-    
-    private void displayUsage() {
-        displayUsage("net.sf.yad2xx.mpsse.samples.SpiEEPROMSample [-h] [-p hex]");
-    }
-    
-    private void dumpMemory(PrintStream out) throws FTDIException {
-        int wordCount = MEM_SIZE_BITS / wordSize.getBits();
-        int readsPerLine = (wordSize == WordSize.W8) ? 16 : 8;
-        
-        for (int base = 0; base < wordCount; base += readsPerLine) {
-            printHex(out, (byte) base);
-            out.print(":");
-            
-            for (int offset = 0; offset < readsPerLine; offset++) {
-                int val = read(base + offset);
-                
-                out.print(' ');
-                
-                if (offset == (readsPerLine / 2)) {
-                    out.print("- ");
-                }
-                
-                printHex(out, (byte) val);
-                
-                if (wordSize == WordSize.W16) {
-                    out.print(' ');
-                    printHex(out, (byte) (val >> 8));
-                }
-            }
-            
-            out.println();
-        }
-    }
+	private Spi spi;
+	private WordSize wordSize;
+	
+	public static void main(String[] args) {
+		SpiEEPROMSample dumper = new SpiEEPROMSample(WordSize.W16);
+		
+		try {
+			if (dumper.processOptions(args)) {
+				dumper.run();
+			} else {
+				dumper.displayUsage();
+			}
+		}
+		catch (Exception e) {
+			System.err.println(e.getMessage());
+			dumper.displayUsage();
+		}
+	}
+	
+	private SpiEEPROMSample(WordSize wordSize) {
+		this.wordSize = wordSize;
+	}
+	
+	private void displayUsage() {
+		displayUsage("net.sf.yad2xx.mpsse.samples.SpiEEPROMSample [-h] [-p hex]");
+	}
+	
+	private void dumpMemory(PrintStream out) throws FTDIException {
+		int wordCount = MEM_SIZE_BITS / wordSize.getBits();
+		int readsPerLine = (wordSize == WordSize.W8) ? 16 : 8;
+		
+		for (int base = 0; base < wordCount; base += readsPerLine) {
+			out.printf("0x%02X", base);
+			out.print(":");
+			
+			for (int offset = 0; offset < readsPerLine; offset++) {
+				int val = read(base + offset);
+				
+				out.print(' ');
+				
+				if (offset == (readsPerLine / 2)) {
+					out.print("- ");
+				}
+				
+	            out.printf("0x%02X", val);
+				
+				if (wordSize == WordSize.W16) {
+					out.print(' ');
+		            out.printf("0x%02X", val >> 8);
+				}
+			}
+			
+			out.println();
+		}
+	}
 
     private byte[] encodeShortOperation(int opcode, int address, Integer data) {
         byte[] result = null;
@@ -167,65 +165,54 @@ public class SpiEEPROMSample extends AbstractSample {
         spi.transactWrite(wordSize.getCommandLength(), encodeLongOperation(OP_ERASE_ALL));      
     }
 
-    /**
-     * Output a single byte in HEX.
-     * 
-     * @param   out             console
-     * @param   b               value
-     */
-    private void printHex(PrintStream out, byte b) {
-        out.print(HEX.charAt((b >> 4) & 0xf));
-        out.print(HEX.charAt(b & 0xf));
-    }
-
-    /**
-     * Read a single byte or word from the specified address.
-     * 
-     * @param   address         address
-     * @return                  target byte or word
-     * @throws  FTDIException   C API call failed, see exception fields for
-     *                          details
-     */
-    public int read(int address) throws FTDIException {
-        spi.assertSelect();
-        spi.writeBits(wordSize.getCommandLength(), encodeShortOperation(OP_READ, address, null));
-        
-        byte[] data = spi.readBits(wordSize.getBits());
-        
-        spi.clearSelect();
-        spi.execute();
-        
-        int result = 0;
-        
-        if (wordSize == WordSize.W8) {
-            result = data[0];
-        } else {
-            result = (data[0] << 8) | data[1];
-        }
-        
-        return result;
-    }
-    
-    private void run() {
-        PrintStream out = System.out;
-        
-        try {
-            
-            out.println("Dump EEPROM Example");
-            out.println("-------------------");
-            printProlog(out);
-            
-            Device[] devices = FTDIInterface.getDevices();
-            
-            if (devices.length == 0) {
-                out.println("*** No FTDI devices found. Possible VID/PID or driver problem. ***");
-                return;
-            }
-            
-            Device device = devices[0];
-            Spi spi = new Spi(device, DESIRED_CLOCK, SpiMode.M0, true);
-            spi.open();
-            setSpi(spi);
+	/**
+	 * Read a single byte or word from the specified address.
+	 * 
+	 * @param	address			address
+	 * @return					target byte or word
+	 * @throws	FTDIException	C API call failed, see exception fields for
+	 * 							details
+	 */
+	public int read(int address) throws FTDIException {
+		spi.assertSelect();
+		spi.writeBits(wordSize.getCommandLength(), encodeShortOperation(OP_READ, address, null));
+		
+		byte[] data = spi.readBits(wordSize.getBits());
+		
+		spi.clearSelect();
+		spi.execute();
+		
+		int result = 0;
+		
+		if (wordSize == WordSize.W8) {
+			result = data[0];
+		} else {
+			result = (data[0] << 8) | data[1];
+		}
+		
+		return result;
+	}
+	
+	private void run() {
+		PrintStream out = System.out;
+		
+		try {
+			
+			out.println("Dump EEPROM Example");
+			out.println("-------------------");
+			printProlog(out);
+			
+			Device[] devices = FTDIInterface.getDevices();
+			
+			if (devices.length == 0) {
+				out.println("*** No FTDI devices found. Possible VID/PID or driver problem. ***");
+				return;
+			}
+			
+			Device device = devices[0];
+			Spi spi = new Spi(device, DESIRED_CLOCK, SpiMode.M0, true);
+			spi.open();
+			setSpi(spi);
 
             out.println("Initial memory contents\n");
             

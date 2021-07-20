@@ -1,8 +1,8 @@
 /*
  * Copyright 2012-2018 Stephen Davies
- * 
+ *
  * This file is part of yad2xx.
- * 
+ *
  * yad2xx is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -25,9 +25,9 @@
  * their implementation the Apache Commons CLI library was used. This creates
  * a compile and runtime dependency on that library. The rest of yad2xx has
  * the JDK as its only runtime requirement.
- * 
- * @author		Stephen Davies
- * @since		July 2013
- * @since		0.3
+ *
+ * @author Stephen Davies
+ * @since July 2013
+ * @since 0.3
  */
 package net.sf.yad2xx.samples;

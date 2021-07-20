@@ -18,6 +18,12 @@
  */
 package net.sf.yad2xx;
 
+import net.sf.yad2xx.ft4222.SpiCPhase;
+import net.sf.yad2xx.ft4222.SpiCPolarity;
+import net.sf.yad2xx.ft4222.SpiClock;
+import net.sf.yad2xx.ft4222.SpiMode;
+import net.sf.yad2xx.ft4222.Version;
+
 /**
  * A Java Native Interface (JNI) wrapper that adapts the FTDI
  * D2XX library to a more OO based approach. This Singleton type
@@ -177,16 +183,29 @@ public class FTDIInterface {
 	 */
 	public static native void setVidPid(int vid, int pid) throws FTDIException;
 
-	/**
-	 * Close the opened device. Calls FT_Close. ftHandle and flags will be 
-	 * reset at completion.
-	 *
-	 * @param	device			device to close
-	 * @throws	FTDIException	FT_Close returned a non-zero status code
-	 * @see						Device#close()
-	 * @since	0.1
-	 */
-	native static void close(Device device) throws FTDIException;
+    /**
+     * Software reset for device. (FT4222 only)
+     * <p>
+     * This function is used to attempt to recover system after a failure.
+     * It is a software reset for the device.
+     *
+     * @param   ftHandle        FT4222 device handle
+     * @throws  FTDIException   FT4222_ChipReset returned a non-zero status code
+     * @see                     FT4222Device#chipReset()
+     * @since   2.1
+     */
+    static native void chipReset(long ftHandle) throws FTDIException;
+
+    /**
+     * Close the opened device. Calls FT_Close. ftHandle and flags will be 
+     * reset at completion.
+     *
+     * @param   device          device to close
+     * @throws  FTDIException   FT_Close returned a non-zero status code
+     * @see                     Device#close()
+     * @since   0.1
+     */
+    static native void close(Device device) throws FTDIException;
 
 	/**
 	 * Clears the Data Terminal Ready (DTR) control signal.
@@ -196,7 +215,7 @@ public class FTDIInterface {
 	 * @see						Device#setDtr(boolean)
 	 * @since	0.2
 	 */
-	native static void clrDtr(long ftHandle) throws FTDIException;
+	static native void clrDtr(long ftHandle) throws FTDIException;
 	
 	/**
 	 * Clears the Request To Send (RTS) control signal.
@@ -206,7 +225,7 @@ public class FTDIInterface {
 	 * @see						Device#setRts(boolean)
 	 * @since	0.2
 	 */
-	native static void clrRts(long ftHandle) throws FTDIException;
+	static native void clrRts(long ftHandle) throws FTDIException;
 	
 	/**
 	 * Sends a cycle command to the USB port.
@@ -221,7 +240,7 @@ public class FTDIInterface {
 	 * @see						Device#cyclePort()
 	 * @since	1.0
 	 */
-	native static void cyclePort(long ftHandle) throws FTDIException;
+	static native void cyclePort(long ftHandle) throws FTDIException;
 	
 	/**
 	 * Erases the device EEPROM.
@@ -231,7 +250,7 @@ public class FTDIInterface {
 	 * @see						Device#eraseEE()
 	 * @since	0.2
 	 */
-	native static void eraseEE(long ftHandle) throws FTDIException;
+	static native void eraseEE(long ftHandle) throws FTDIException;
 
 	/**
 	 * Common formatting for driver and DLL version strings. Converts binary
@@ -258,8 +277,20 @@ public class FTDIInterface {
 	 * @see						Device#getBitMode()
 	 * @since	0.2
 	 */
-	native static byte getBitMode(long ftHandle) throws FTDIException;
+	static native byte getBitMode(long ftHandle) throws FTDIException;
 	
+    /**
+     * Get the current system clock rate (FT4222 only).
+     *
+     * @param   ftHandle        FT4222 device handle
+     * @throws  FTDIException
+     *             API call failed, see exception fields for details.
+     *             More information can be found in AN_329.
+     * @see FT4222Device#getClock()
+     * @since 2.1
+     */
+    static native int getClock(long ftHandle) throws FTDIException;
+
 	/**
 	 * Returns the Windows COM port associated with a device. Returns -1 if no
      * port is associated with the device.
@@ -271,7 +302,7 @@ public class FTDIInterface {
 	 * @see						Device#getComPortNumber()
 	 * @since	1.0
 	 */
-	native static long getComPortNumber(long ftHandle) throws FTDIException;
+	static native long getComPortNumber(long ftHandle) throws FTDIException;
 	
 	/**
 	 * FT_GetDriverVersion in its raw format.
@@ -283,7 +314,7 @@ public class FTDIInterface {
 	 * @see						Device#getDriverVersion()
 	 * @since	0.3
 	 */
-	native static int getDriverVersionRaw(long ftHandle) throws FTDIException;
+	static native int getDriverVersionRaw(long ftHandle) throws FTDIException;
 
 	/**
 	 * Get the current value of the latency timer. In the FT8U232AM and
@@ -301,8 +332,24 @@ public class FTDIInterface {
 	 * @see						Device#getLatencyTimer()
 	 * @since	0.2
 	 */
-	native static byte getLatencyTimer(long ftHandle) throws FTDIException;
+	static native byte getLatencyTimer(long ftHandle) throws FTDIException;
 	
+    /**
+     * This function returns the maximum packet size in a transaction (FT4222 only).
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @return maximum packet size
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @throws IllegalStateException
+     *             Device must be opened before calling this method.
+     * @see FT4222Device#getMaxTransferSize()
+     * @since 2.1
+     */
+    static native int getMaxTransferSize(long ftHandle) throws FTDIException;
+
 	/**
 	 * Gets the modem and line status from the device.
 	 * 
@@ -313,7 +360,7 @@ public class FTDIInterface {
 	 * @see						Device#getModemStatus()
 	 * @since	0.3
 	 */
-	native static int getModemStatus(long ftHandle) throws FTDIException;
+	static native int getModemStatus(long ftHandle) throws FTDIException;
 
 	/**
 	 * Returns the number of bytes available in the receive queue.
@@ -325,22 +372,37 @@ public class FTDIInterface {
 	 * @see						Device#getQueueStatus()
 	 * @since	0.1
 	 */
-	native static int getQueueStatus(long ftHandle) throws FTDIException;
+	static native int getQueueStatus(long ftHandle) throws FTDIException;
 	
-	/**
-	 * Gets the device status including number of characters in the receive
-	 * queue, number of characters in the transmit queue, and the current event
-	 * status.
-	 *
-	 * @param	ftHandle		D2XX device handle
-	 * @return					device status
-	 * @throws	FTDIException	FT_GetStatus returned a non-zero status code
-	 * @see						DeviceStatus
-	 * @see						Device#getStatus()
-	 * @since	0.3
-	 */
-	native static DeviceStatus getStatus(long ftHandle) throws FTDIException;
-	
+    /**
+     * Gets the device status including number of characters in the receive
+     * queue, number of characters in the transmit queue, and the current event
+     * status.
+     *
+     * @param   ftHandle        D2XX device handle
+     * @return                  device status
+     * @throws  FTDIException   FT_GetStatus returned a non-zero status code
+     * @see                     DeviceStatus
+     * @see                     Device#getStatus()
+     * @since   0.3
+     */
+    static native DeviceStatus getStatus(long ftHandle) throws FTDIException;
+    
+    /**
+     * Get the versions of FT4222H and LibFT4222 (FT4222 only).
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @return device status
+     * @throws  FTDIException
+     *             API call failed, see exception fields for details.
+     *             More information can be found in AN_329.
+     * @see Version
+     * @see FT422Device#getVersion()
+     * @since 2.1
+     */
+    static native Version getVersion(long ftHandle) throws FTDIException;
+
 	/**
 	 * A command to retrieve the current VID and PID combination from within
 	 * the internal device list table. Java prevents returning multiple values
@@ -352,8 +414,55 @@ public class FTDIInterface {
 	 * @throws	FTDIException	FT_GetVIDPID returned a non-zero status code
 	 * @since	0.1
 	 */
-	native static long getVidPidRaw() throws FTDIException;
-	
+	static native long getVidPidRaw() throws FTDIException;
+
+	/**
+	 * Initialize the FT4222H as an I2C master with the requested I2C speed.
+	 *
+	 * @param   ftHandle        FT4222 device handle
+	 * @param   kbps            the speed of I2C transmission
+	 * @throws  FTDIException   FT4222_I2CMaster_Init returned a non-zero
+	 *                          status code
+	 * @see                     FTDIDevice#i2cMasterInit(int)
+	 * @since   2.1
+	 */
+	static native void i2cMasterInit(long ftHandle, int kbps) throws FTDIException;
+
+    /**
+     * Read data from the specified I2C slave device with START and STOP
+     * conditions.
+     *
+     * @param   ftHandle        FT4222 device handle
+     * @param   slaveAddress    address of the target i2c slave
+     * @param   buffer          where to store the results
+     * @param   bytesToRead     max number of bytes to read (may be less than
+     *                          bufferLength)
+     * @return                  number of bytes actually read
+     * @throws  FTDIException   API call failed, see exception fields for
+     *                          details
+     * @see                     FT4222Device#i2cMasterRead(int, int)
+     * @since   2.1
+     */
+    static native int i2cMasterRead(long ftHandle, int slaveAddress, byte[] buffer, int bytesToRead) throws FTDIException;
+
+    /**
+     * Write data to the specified I2C slave device with START and STOP
+     * conditions.
+     *
+     * @param   ftHandle        FT4222 device handle
+     * @param   slaveAddress    address of the target i2c slave
+     * @param   buffer          data to be written to the device. Array length
+     *                          implies number of bytes to write
+     * @param   bytesToWrite    number of bytes to output
+     * @return                  number of bytes actually transferred
+     *                          (sizeTransferred).
+     * @throws  FTDIException   API call failed, see exception fields for
+     *                          details
+     * @see                     FT4222Device#i2cMasterWrite(int, byte[])
+     * @since   2.1
+     */
+    static native int i2cMasterWrite(long ftHandle, int slaveAddress, byte[] buffer, int bytesToWrite) throws FTDIException;
+
 	/**
 	 * Opens the device. D2XX handle is recorded in the device.
 	 * 
@@ -362,7 +471,7 @@ public class FTDIInterface {
 	 * @see						Device#open()
 	 * @since	0.1
 	 */
-	native static void open(Device device) throws FTDIException;
+	static native void open(Device device) throws FTDIException;
 	
 	/**
 	 * Purges receive and/or transmit buffers in the device.
@@ -374,7 +483,7 @@ public class FTDIInterface {
 	 * @see						Device#purge(int)
 	 * @since	1.0
 	 */
-	native static void purge(long ftHandle, int mask) throws FTDIException;
+	static native void purge(long ftHandle, int mask) throws FTDIException;
 	
 	/**
 	 * Reads data from device up to the size of the buffer. This call will
@@ -391,7 +500,7 @@ public class FTDIInterface {
 	 * @see						Device#read(byte[])
 	 * @since	0.1
 	 */
-	native static int read(long ftHandle, byte[] buffer, int bufferLength) throws FTDIException;
+	static native int read(long ftHandle, byte[] buffer, int bufferLength) throws FTDIException;
 	
 	/**
 	 * Reads a 16-bit value from an EEPROM location.
@@ -403,7 +512,7 @@ public class FTDIInterface {
 	 * @see						Device#readEE(int)
 	 * @since	0.2
 	 */
-	native static int readEE(long ftHandle, int wordOffset) throws FTDIException;
+	static native int readEE(long ftHandle, int wordOffset) throws FTDIException;
 	
 	/**
 	 * Send a reset command to the device.
@@ -413,7 +522,7 @@ public class FTDIInterface {
 	 * @see						Device#reset()
 	 * @since	0.1
 	 */
-	native static void reset(long ftHandle) throws FTDIException;
+	static native void reset(long ftHandle) throws FTDIException;
 	
 	/**
 	 * Send a reset command to the port.
@@ -429,7 +538,7 @@ public class FTDIInterface {
 	 * @see						Device#resetPort()
 	 * @since	1.0
 	 */
-	native static void resetPort(long ftHandle) throws FTDIException;
+	static native void resetPort(long ftHandle) throws FTDIException;
 	
 	/**
 	 * Restarts the driver's IN task.
@@ -443,7 +552,7 @@ public class FTDIInterface {
 	 * @see						Device#restartInTask()
 	 * @since	1.0
 	 */
-	native static void restartInTask(long ftHandle) throws FTDIException;
+	static native void restartInTask(long ftHandle) throws FTDIException;
 
 	/**
 	 * Sets the baud rate for the device.
@@ -454,7 +563,7 @@ public class FTDIInterface {
 	 * @see						Device#setBaudRate()
 	 * @since	0.1
 	 */
-	native static void setBaudRate(long ftHandle, int baudRate) throws FTDIException;
+	static native void setBaudRate(long ftHandle, int baudRate) throws FTDIException;
 	
 	/**
 	 * Enables different chip modes e.g. bit bang or MPSSE. Heavily dependent
@@ -467,7 +576,7 @@ public class FTDIInterface {
 	 * @see						Device#setBitMode(byte, FTDIBitMode)				
 	 * @since	0.2
 	 */
-	native static void setBitMode(long ftHandle, byte pinDirection, byte mode) throws FTDIException;
+	static native void setBitMode(long ftHandle, byte pinDirection, byte mode) throws FTDIException;
 	
 	/**
 	 * Resets the BREAK condition for the device.
@@ -477,7 +586,7 @@ public class FTDIInterface {
 	 * @see						Device#setBreak(boolean)
 	 * @since	0.3
 	 */
-	native static void setBreakOff(long ftHandle) throws FTDIException;
+	static native void setBreakOff(long ftHandle) throws FTDIException;
 	
 	/**
 	 * Sets the BREAK condition for the device.
@@ -487,7 +596,7 @@ public class FTDIInterface {
 	 * @see						Device#setBreak(boolean)
 	 * @since	0.3
 	 */
-	native static void setBreakOn(long ftHandle) throws FTDIException;
+	static native void setBreakOn(long ftHandle) throws FTDIException;
 	
 	/**
 	 * Sets the special characters for the device.
@@ -501,8 +610,21 @@ public class FTDIInterface {
 	 * @see						Device#setChars(char, boolean, char, boolean)
 	 * @since	0.2
 	 */
-	native static void setChars(long ftHandle, char event, boolean eventEnable, char error, boolean errorEnable) throws FTDIException;
+	static native void setChars(long ftHandle, char event, boolean eventEnable, char error, boolean errorEnable) throws FTDIException;
 	
+    /**
+     * Set the system clock rate (FT4222 only).
+     *
+     * @param   ftHandle        D2XX device handle
+     * @param   rate            clock rate
+     * @throws  FTDIException
+     *             API call failed, see exception fields for details.
+     *             More information can be found in AN_329.
+     * @see FT4222Device#setClock(ClockRate)
+     * @since 2.1
+     */
+    static native void setClock(long ftHandle, long rate) throws FTDIException;
+
 	/**
 	 * Sets the data characteristics for the device.
 	 *
@@ -520,7 +642,7 @@ public class FTDIInterface {
 	 * @see						Device#setDataCharacteristics(byte, byte, byte)
 	 * @since	0.3
 	 */
-	native static void setDataCharacteristics(long ftHandle, byte wordLength, byte stopBits, byte parity) throws FTDIException;
+	static native void setDataCharacteristics(long ftHandle, byte wordLength, byte stopBits, byte parity) throws FTDIException;
 
 	/**
 	 * Sets the maximum time in milliseconds that a USB request can remain
@@ -538,7 +660,7 @@ public class FTDIInterface {
 	 * @see						Device#setDeadmanTimeout(long)
 	 * @since	1.0
 	 */
-	native static void setDeadmanTimeout(long ftHandle, long timeout) throws FTDIException;
+	static native void setDeadmanTimeout(long ftHandle, long timeout) throws FTDIException;
 	
 	/**
 	 * Sets the Data Terminal Ready (DTR) control signal.
@@ -548,7 +670,7 @@ public class FTDIInterface {
 	 * @see						Device#setDtr(boolean)
 	 * @since	0.2
 	 */
-	native static void setDtr(long ftHandle) throws FTDIException;
+	static native void setDtr(long ftHandle) throws FTDIException;
 	
 	/**
 	 * Sets the flow control for the device.
@@ -567,8 +689,43 @@ public class FTDIInterface {
 	 * @see						Device#setFlowControl(short, char, char)
 	 * @since	0.3
 	 */
-	native static void setFlowControl(long ftHandle, short flowControl, char xOn, char xOff) throws FTDIException;
+	static native void setFlowControl(long ftHandle, short flowControl, char xOn, char xOff) throws FTDIException;
 	
+    /**
+     * Set trigger condition for the pin wakeup/interrupt (FT4222 only).
+     *
+     * @param ftHandle
+     *            D2XX device handle
+     * @param trigger
+     *            trigger condition
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @see FT4222Device#setInterruptTrigger(GpioTrigger)
+     * @since 2.1
+     */
+    static native void setInterruptTrigger(long ftHandle, int trigger) throws FTDIException;
+
+    /**
+     * Set the latency timer value.
+     * <p>
+     * In the FT8U232AM and FT8U245AM devices, the receive buffer timeout that
+     * is used to flush remaining data from the receive buffer was fixed at 16
+     * ms. In all other FTDI devices, this timeout is programmable and can be
+     * set at 1 ms intervals between 2ms and 255 ms. This allows the device to
+     * be better optimized for protocols requiring faster response times from
+     * short data packets.
+     * 
+     * @param   ftHandle        D2XX device handle
+     * @param   timer           required value, in milliseconds, of latency
+     *                          timer. Valid range is 2 - 255
+     * @throws  FTDIException   FT_SetLatencyTimer returned a non-zero status
+     *                          code
+     * @see                     Device#setLatencyTimer(byte)
+     * @since                   0.2
+     */
+    static native void setLatencyTimer(long ftHandle, byte timer) throws FTDIException;
+    
 	/**
 	 * Sets the ResetPipeRetryCount value.
 	 * <p>
@@ -587,7 +744,7 @@ public class FTDIInterface {
 	 * @see						Device#setResetPipeRetryCount(long)
 	 * @since	1.0
 	 */
-	native static void setResetPipeRetryCount(long ftHandle, long count) throws FTDIException;
+	static native void setResetPipeRetryCount(long ftHandle, long count) throws FTDIException;
 	
 	/**
 	 * Sets the Request To Send (RTS) control signal.
@@ -597,28 +754,22 @@ public class FTDIInterface {
 	 * @see						Device#setRts(boolean)
 	 * @since	0.2
 	 */
-	native static void setRts(long ftHandle) throws FTDIException;
+	static native void setRts(long ftHandle) throws FTDIException;
 	
-	/**
-	 * Set the latency timer value.
-	 * <p>
-	 * In the FT8U232AM and FT8U245AM devices, the receive buffer timeout that
-	 * is used to flush remaining data from the receive buffer was fixed at 16
-	 * ms. In all other FTDI devices, this timeout is programmable and can be
-	 * set at 1 ms intervals between 2ms and 255 ms. This allows the device to
-	 * be better optimized for protocols requiring faster response times from
-	 * short data packets.
-	 * 
-	 * @param	ftHandle		D2XX device handle
-	 * @param	timer			required value, in milliseconds, of latency
-	 * 							timer. Valid range is 2 - 255
-	 * @throws	FTDIException	FT_SetLatencyTimer returned a non-zero status
-	 * 							code
-	 * @see						Device#setLatencyTimer(byte)
-	 * @since					0.2
-	 */
-	native static void setLatencyTimer(long ftHandle, byte timer) throws FTDIException;
-	
+    /**
+     * Enable or disable, suspend out, which will emit a signal when FT4222H
+     * enters suspend mode (FT4222 only).
+     *
+     * @param   ftHandle        D2XX device handle
+     * @param   enable
+     * @throws  FTDIException
+     *             API call failed, see exception fields for details.
+     *             More information can be found in AN_329.
+     * @see FT4222Device#setSuspendOut(boolean)
+     * @since 2.1
+     */
+    static native void setSuspendOut(long ftHandle, boolean enable) throws FTDIException;
+
 	/**
 	 * Sets the read and write timeouts for the device.
 	 * 
@@ -629,7 +780,7 @@ public class FTDIInterface {
 	 * @see						Device#setTimeouts(int, int)
 	 * @since	0.1
 	 */
-	native static void setTimeouts(long ftHandle, int readTimeout, int writeTimeout) throws FTDIException;
+	static native void setTimeouts(long ftHandle, int readTimeout, int writeTimeout) throws FTDIException;
 	
 	/**
 	 * Set the USB request transfer size.
@@ -650,7 +801,105 @@ public class FTDIInterface {
 	 * @see						Device#setUSBParameters(int, int)
 	 * @since	0.2
 	 */
-	native static void setUSBParameters(long ftHandle, int inTransferSize, int outTransferSize) throws FTDIException;
+	static native void setUSBParameters(long ftHandle, int inTransferSize, int outTransferSize) throws FTDIException;
+
+    /**
+     * Enable or disable wakeup/interrupt (FT4222 only).
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @param enable
+     * @throws FTDIException
+     *            API call failed, see exception fields for details. More
+     *            information can be found in AN_329.
+     * @see FT4222Device#setWakeUpInterrupt(boolean)
+     * @since 2.1
+     */
+    static native void setWakeUpInterrupt(long ftHandle, boolean enable) throws FTDIException;
+
+    /**
+     * Initialize the FT4222H as an SPI master.
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @param ioLine
+     *            SPI transmission lines - single, dual or quad
+     * @param div
+     *            system clock divider
+     * @param cpol
+     *            SPI bus CLK pin polarity
+     * @param cpha
+     *            selects clock edge to shift and sample
+     * @param ssoMap
+     *            Slave selection output pins.
+     *
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @throws IllegalStateException
+     *             Device must be opened before calling this method.
+     * @see FT4222Device#spiMasterInit(SpiMode, SpiClock, SpiCPolarity, SpiCPhase,
+     *      int)
+     * @since 2.1
+     */
+    static native void spiMasterInit(long ftHandle, int ioLine, int div, int cpol, int cpha, int ssoMap)
+            throws FTDIException;
+
+    /**
+     * Switch the FT4222H SPI master to single, dual, or quad mode.
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @param spiMode
+     *            SPI transmission lines - single, dual or quad
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @throws IllegalStateException
+     *             Device must be opened before calling this method.
+     * @see FT4222Device#spiMasterSetLines(SpiMode)
+     * @since 2.1
+     */
+    static native void spiMasterSetLines(long ftHandle, int spiMode)
+            throws FTDIException;
+
+    /**
+     * Under SPI single mode, read data from an SPI slave.
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @param buffer
+     *            buffer that receives the data from the device
+     * @param bytesToRead
+     *            number of bytes to read from the device
+     * @param isEndTransaction
+     *            If TRUE the Slave Select pin will be raised at the end of the read 
+     * @return number of bytes read from the device
+     * @throws FTDIException
+     *             API call failed, see exception fields for details. More
+     *             information can be found in AN_329.
+     * @throws IllegalStateException
+     *             Device must be opened before calling this method.
+     * @see FT4222Device#spiMasterSingleRead(byte[], int, boolean)
+     * @since 2.1
+     */
+    static native int spiMasterSingleRead(long ftHandle, byte[] buffer, int bytesToRead, boolean isEndTransaction)
+            throws FTDIException;
+
+    /**
+     * Reset the SPI transaction (FT4222 only).
+     *
+     * @param ftHandle
+     *            FT4222 device handle
+     * @param spiIdx
+     *            The index of the SPI transaction
+     * @throws FTDIException
+     *            API call failed, see exception fields for details. More
+     *            information can be found in AN_329.
+     * @see FT4222Device#spiTransactionReset(int)
+     * @since 2.1
+     */
+    static native void spiResetTransaction(long ftHandle, int spiIdx) throws FTDIException;
 
 	/**
 	 * Stops the driver's IN task.
@@ -666,7 +915,17 @@ public class FTDIInterface {
 	 * @see						Device#stopInTask()
 	 * @since	1.0
 	 */
-	native static void stopInTask(long ftHandle) throws FTDIException;
+	static native void stopInTask(long ftHandle) throws FTDIException;
+
+	/**
+	 * Release allocated resources.
+	 *  
+	 * @param   ftHandle                FT4222 device handle
+	 * @throws  FTDIException           FT4222_UnInitialize returned a non-zero status code
+	 * @see                             FTDIDevice#unInitialize()
+	 * @since   2.1
+	 */
+	static native void unInitialize(long ftHandle) throws FTDIException;
 
 	/**
 	 * Write data to the device.
@@ -681,7 +940,7 @@ public class FTDIInterface {
 	 * @see						Device#write(byte[], int)
 	 * @since	0.1
 	 */
-	native static int write(long ftHandle, byte[] buffer, int numBytesToWrite) throws FTDIException;
+	static native int write(long ftHandle, byte[] buffer, int numBytesToWrite) throws FTDIException;
 
 	/**
 	 * Write a 16-bit value to an EEPROM location.
@@ -692,6 +951,6 @@ public class FTDIInterface {
 	 * @throws	FTDIException	FT_WriteEE returned a non-zero status code
 	 * @since	0.2
 	 */
-	native static void writeEE(long ftHandle, int wordOffset, int value) throws FTDIException;
+	static native void writeEE(long ftHandle, int wordOffset, int value) throws FTDIException;
 
 }
