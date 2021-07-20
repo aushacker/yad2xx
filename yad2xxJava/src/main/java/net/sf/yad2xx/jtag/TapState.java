@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Stephen Davies
+ * Copyright 2016-2020 Stephen Davies
  * 
  * This file is part of yad2xx.
  * 

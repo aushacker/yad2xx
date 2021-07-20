@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Stephen Davies
+ * Copyright 2016-2020 Stephen Davies
  * 
  * This file is part of yad2xx.
  * 
@@ -35,86 +35,86 @@ import net.sf.yad2xx.samples.AbstractSample;
  */
 public class ReadIdCodeSample extends AbstractSample {
 
-//	attribute INSTRUCTION_OPCODE of xc9572xl_vq44 : entity is
-//	"BYPASS ( 11111111)," &
-//	"CLAMP ( 11111010)," &
-//	"ISPEX ( 11110000)," &
-//	"EXTEST ( 00000000),"&
-//	"FBLANK ( 11100101),"& 
-//	"FBULK ( 11101101),"&
-//	"FERASE ( 11101100),"&
-//	"FPGM ( 11101010)," &
-//	"FPGMI ( 11101011)," &
-//	"FVFY ( 11101110)," &
-//	"FVFYI ( 11101111)," &
-//	"HIGHZ ( 11111100),"&
-//	"IDCODE ( 11111110),"&
-//	"INTEST ( 00000010),"&
-//	"ISPEN ( 11101000)," &
-//	"ISPENC ( 11101001)," &
-//	"SAMPLE ( 00000001)," &
-//	"USERCODE ( 11111101)"; 
+//  attribute INSTRUCTION_OPCODE of xc9572xl_vq44 : entity is
+//  "BYPASS ( 11111111)," &
+//  "CLAMP ( 11111010)," &
+//  "ISPEX ( 11110000)," &
+//  "EXTEST ( 00000000),"&
+//  "FBLANK ( 11100101),"& 
+//  "FBULK ( 11101101),"&
+//  "FERASE ( 11101100),"&
+//  "FPGM ( 11101010)," &
+//  "FPGMI ( 11101011)," &
+//  "FVFY ( 11101110)," &
+//  "FVFYI ( 11101111)," &
+//  "HIGHZ ( 11111100),"&
+//  "IDCODE ( 11111110),"&
+//  "INTEST ( 00000010),"&
+//  "ISPEN ( 11101000)," &
+//  "ISPENC ( 11101001)," &
+//  "SAMPLE ( 00000001)," &
+//  "USERCODE ( 11111101)"; 
 
-	public static final int OPCODE_LENGTH = 8;
-	public static final int IDREG_LENGTH = 32;
-	
-	public static final int OPCODE_BYPASS = 0xFF;
-	public static final int OPCODE_IDCODE = 0xFE;
-	public static final int OPCODE_USERCODE = 0xFD;
-	
-	public static void main(String[] args) {
-		ReadIdCodeSample sample = new ReadIdCodeSample();
-		
-		try {
-			if (sample.processOptions(args)) {
-				sample.run();
-			} else {
-				sample.displayUsage();
-			}
-		}
-		catch (Exception e) {
-			System.err.println(e.getMessage());
-			sample.displayUsage();
-		}
-	}
-	
-	private void displayUsage() {
-		displayUsage("net.sf.yad2xx.jtag.samples.ReadIdCodeSample [-h] [-p hex]");
-	}
-	
-	private void run() {
-		PrintStream out = System.out;
-		
-		try {
-			
-			out.println("Jtag Id Code Example");
-			out.println("--------------------");
-			printProlog(out);
-			
-			Device[] devices = FTDIInterface.getDevices();
-			
-			if (devices.length == 0) {
-				out.println("*** No FTDI devices found. Possible VID/PID or driver problem. ***");
-				return;
-			}
-			
-			Device device = devices[0];
-			Jtag jtag = new Jtag(device);
-			jtag.open();
-			
-			jtag.scanIR(OPCODE_LENGTH, new byte[] { (byte) OPCODE_IDCODE });
-			byte[] data = jtag.scanDR(IDREG_LENGTH);
-			// output data
-			
-			//jtag.scanIR(OPCODE_LENGTH, new byte[] { (byte) OPCODE_USERCODE });
-			//data = jtag.scanDR(IDREG_LENGTH);
-			// output data
-			
-			jtag.close();
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
+    public static final int OPCODE_LENGTH = 8;
+    public static final int IDREG_LENGTH = 32;
+    
+    public static final int OPCODE_BYPASS = 0xFF;
+    public static final int OPCODE_IDCODE = 0xFE;
+    public static final int OPCODE_USERCODE = 0xFD;
+    
+    public static void main(String[] args) {
+        ReadIdCodeSample sample = new ReadIdCodeSample();
+        
+        try {
+            if (sample.processOptions(args)) {
+                sample.run();
+            } else {
+                sample.displayUsage();
+            }
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+            sample.displayUsage();
+        }
+    }
+    
+    private void displayUsage() {
+        displayUsage("net.sf.yad2xx.jtag.samples.ReadIdCodeSample [-h] [-p hex]");
+    }
+    
+    private void run() {
+        PrintStream out = System.out;
+        
+        try {
+            
+            out.println("Jtag Id Code Example");
+            out.println("--------------------");
+            printProlog(out);
+            
+            Device[] devices = FTDIInterface.getDevices();
+            
+            if (devices.length == 0) {
+                out.println("*** No FTDI devices found. Possible VID/PID or driver problem. ***");
+                return;
+            }
+            
+            Device device = devices[0];
+            Jtag jtag = new Jtag(device);
+            jtag.open();
+            
+            jtag.scanIR(OPCODE_LENGTH, new byte[] { (byte) OPCODE_IDCODE });
+            byte[] data = jtag.scanDR(IDREG_LENGTH);
+            // output data
+            
+            //jtag.scanIR(OPCODE_LENGTH, new byte[] { (byte) OPCODE_USERCODE });
+            //data = jtag.scanDR(IDREG_LENGTH);
+            // output data
+            
+            jtag.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+    }
 
 }

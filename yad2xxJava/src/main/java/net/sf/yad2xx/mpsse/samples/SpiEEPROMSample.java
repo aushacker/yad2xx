@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Stephen Davies
+ * Copyright 2016-2020 Stephen Davies
  * 
  * This file is part of yad2xx.
  * 
@@ -31,9 +31,9 @@ import net.sf.yad2xx.samples.AbstractSample;
  * Example program using an FTDI device in SPI mode to manipulate the contents of
  * a CAT93C46 EEPROM. The EEPROM is configured in 16 bit mode (ORG = 1).
  * 
- * @author		Stephen Davies
- * @since		15 April 2016
- * @since		0.4
+ * @author      Stephen Davies
+ * @since       15 April 2016
+ * @since       0.4
  */
 public class SpiEEPROMSample extends AbstractSample {
 
@@ -110,60 +110,60 @@ public class SpiEEPROMSample extends AbstractSample {
 		}
 	}
 
-	private byte[] encodeShortOperation(int opcode, int address, Integer data) {
-		byte[] result = null;
-		
-		if (data == null) {
-			result = new byte[2];
-			result[0] = (byte) (opcode << 5);
-			if (wordSize == WordSize.W8) {
-				result[0] |= (byte) ((address >> 2) & 0x1f);
-				result[1] = (byte) ((address << 6) & 0xff);
-			} else {
-				result[0] |= (byte) ((address >> 1) & 0x1f);
-				result[1] = (byte) ((address << 7) & 0xff);
-			}
-		} else {
-		}
-		
-		return result;
-	}
-	
-	/**
-	 * Write enable/disable and erase/write all are long operations. They
-	 * have 4-5 don't care values in their least significant bits. The
-	 * result will be a 9 or 10 bit field encoded into 2 bytes. All of the
-	 * first byte is used, only bits 6-7 of the second byte are used.
-	 */
-	private byte[] encodeLongOperation(int opcode) {
-		byte[] result = new byte[2];
-		
-		result[0] = (byte) (opcode << 3);	// MSB
-		result[1] = 0;						// LSB
-		
-		return result;
-	}
-	
-	/**
-	 * Erase the given address (i.e. set all 16 bits to 0xFFFF).
-	 * 
-	 * @param	address			address to erase
-	 * @throws	FTDIException	C API call failed, see exception fields for
-	 * 							details
-	 */
-	public void erase(int address) throws FTDIException {
-		spi.transactWrite(wordSize.getCommandLength(), encodeShortOperation(OP_ERASE, address, null));		
-	}
+    private byte[] encodeShortOperation(int opcode, int address, Integer data) {
+        byte[] result = null;
+        
+        if (data == null) {
+            result = new byte[2];
+            result[0] = (byte) (opcode << 5);
+            if (wordSize == WordSize.W8) {
+                result[0] |= (byte) ((address >> 2) & 0x1f);
+                result[1] = (byte) ((address << 6) & 0xff);
+            } else {
+                result[0] |= (byte) ((address >> 1) & 0x1f);
+                result[1] = (byte) ((address << 7) & 0xff);
+            }
+        } else {
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Write enable/disable and erase/write all are long operations. They
+     * have 4-5 don't care values in their least significant bits. The
+     * result will be a 9 or 10 bit field encoded into 2 bytes. All of the
+     * first byte is used, only bits 6-7 of the second byte are used.
+     */
+    private byte[] encodeLongOperation(int opcode) {
+        byte[] result = new byte[2];
+        
+        result[0] = (byte) (opcode << 3);   // MSB
+        result[1] = 0;                      // LSB
+        
+        return result;
+    }
+    
+    /**
+     * Erase the given address (i.e. set all 16 bits to 0xFFFF).
+     * 
+     * @param   address         address to erase
+     * @throws  FTDIException   C API call failed, see exception fields for
+     *                          details
+     */
+    public void erase(int address) throws FTDIException {
+        spi.transactWrite(wordSize.getCommandLength(), encodeShortOperation(OP_ERASE, address, null));      
+    }
 
-	/**
-	 * Erase the entire chip.
-	 * 
-	 * @throws	FTDIException	C API call failed, see exception fields for
-	 * 							details
-	 */
-	public void eraseAll() throws FTDIException {
-		spi.transactWrite(wordSize.getCommandLength(), encodeLongOperation(OP_ERASE_ALL));		
-	}
+    /**
+     * Erase the entire chip.
+     * 
+     * @throws  FTDIException   C API call failed, see exception fields for
+     *                          details
+     */
+    public void eraseAll() throws FTDIException {
+        spi.transactWrite(wordSize.getCommandLength(), encodeLongOperation(OP_ERASE_ALL));      
+    }
 
 	/**
 	 * Read a single byte or word from the specified address.
@@ -214,135 +214,135 @@ public class SpiEEPROMSample extends AbstractSample {
 			spi.open();
 			setSpi(spi);
 
-			out.println("Initial memory contents\n");
-			
-			writeDisable();
-			dumpMemory(out);
+            out.println("Initial memory contents\n");
+            
+            writeDisable();
+            dumpMemory(out);
 
-			out.println("\nAttempting to write (write disabled)\n");
-			write(0, 0x100);
-			dumpMemory(out);
-			
-			out.println("\nWriting to locations 0 and 1 (write enabled)\n");
-			writeEnable();
-			write(0, 0x100);
-			waitWhileBusy();
-			write(1, 0x302);
-			waitWhileBusy();
-			dumpMemory(out);
-			
-			out.println("\nErasing location 1\n");
-			erase(1);
-			waitWhileBusy();
-			dumpMemory(out);
-			
-			out.println("\nErasing all\n");
-			eraseAll();
-			waitWhileBusy();
-			dumpMemory(out);
-			
-			spi.close();
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
+            out.println("\nAttempting to write (write disabled)\n");
+            write(0, 0x100);
+            dumpMemory(out);
+            
+            out.println("\nWriting to locations 0 and 1 (write enabled)\n");
+            writeEnable();
+            write(0, 0x100);
+            waitWhileBusy();
+            write(1, 0x302);
+            waitWhileBusy();
+            dumpMemory(out);
+            
+            out.println("\nErasing location 1\n");
+            erase(1);
+            waitWhileBusy();
+            dumpMemory(out);
+            
+            out.println("\nErasing all\n");
+            eraseAll();
+            waitWhileBusy();
+            dumpMemory(out);
+            
+            spi.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+    }
 
-	private void setSpi(Spi spi) {
-		this.spi = spi;
-	}
+    private void setSpi(Spi spi) {
+        this.spi = spi;
+    }
 
-	/**
-	 * The CAT93C46 self-times its write operations. Asserting CS will
-	 * enable the device, it will pull MISO low until the write is complete.
-	 * 
-	 * @throws	FTDIException	C API call failed, see exception fields for
-	 * 							details
-	 */
-	public void waitWhileBusy() throws FTDIException {
-		spi.assertSelect();
-		spi.execute();
-		
-		// wait for MISO to go high
-		while ( (spi.readDataBitsLow() & Spi.SPI_MISO_MASK) == 0) {
-		};
-		
-		spi.clearSelect();
-		spi.execute();
-	}
+    /**
+     * The CAT93C46 self-times its write operations. Asserting CS will
+     * enable the device, it will pull MISO low until the write is complete.
+     * 
+     * @throws  FTDIException   C API call failed, see exception fields for
+     *                          details
+     */
+    public void waitWhileBusy() throws FTDIException {
+        spi.assertSelect();
+        spi.execute();
+        
+        // wait for MISO to go high
+        while ( (spi.readDataBitsLow() & Spi.SPI_MISO_MASK) == 0) {
+        };
+        
+        spi.clearSelect();
+        spi.execute();
+    }
 
-	/**
-	 * Write a value to a single location.
-	 * 
-	 * @param	address			address
-	 * @param	value			value to write
-	 * @throws	FTDIException	C API call failed, see exception fields for
-	 * 							details
-	 */
-	public void write(int address, int value) throws FTDIException {
-		spi.assertSelect();
-		spi.writeBits(wordSize.getCommandLength(), encodeShortOperation(OP_WRITE, address, null));
-		if (wordSize == WordSize.W8) {
-			spi.writeBits(8, new byte[] { (byte) (value & 0xff)});
-		} else {
-			spi.writeBits(16, new byte[] { (byte) ((value >> 8) & 0xff), (byte) (value & 0xff) });
-		}
-		
-		spi.clearSelect();
-		spi.execute();
-	}
-	
-	/**
-	 * Set EEPROM to ignore write requests.
-	 *
-	 * @throws	FTDIException	C API call failed, see exception fields for
-	 * 							details
-	 */
-	public void writeDisable() throws FTDIException {
-		spi.transactWrite(wordSize.getCommandLength(), encodeLongOperation(OP_WRITE_DISABLE));	
-	}
-	
-	/**
-	 * Set EEPROM to allow write requests.
-	 *
-	 * @throws	FTDIException	C API call failed, see exception fields for
-	 * 							details
-	 */
-	public void writeEnable() throws FTDIException {
-		spi.transactWrite(wordSize.getCommandLength(), encodeLongOperation(OP_WRITE_ENABLE));	
-	}
-	
-	/**
-	 * The CAT93C46 can be organized into 8 or 16 bit words. This setting effects 
-	 * the SPI command word lengths. 
-	 */
-	private enum WordSize {
-		
-		W8(8, 10), W16(16, 9);
-		
-		/**
-		 * Memory id organized into 8 ot 16 bit words.
-		 */
-		private final int bits;
+    /**
+     * Write a value to a single location.
+     * 
+     * @param   address         address
+     * @param   value           value to write
+     * @throws  FTDIException   C API call failed, see exception fields for
+     *                          details
+     */
+    public void write(int address, int value) throws FTDIException {
+        spi.assertSelect();
+        spi.writeBits(wordSize.getCommandLength(), encodeShortOperation(OP_WRITE, address, null));
+        if (wordSize == WordSize.W8) {
+            spi.writeBits(8, new byte[] { (byte) (value & 0xff)});
+        } else {
+            spi.writeBits(16, new byte[] { (byte) ((value >> 8) & 0xff), (byte) (value & 0xff) });
+        }
+        
+        spi.clearSelect();
+        spi.execute();
+    }
+    
+    /**
+     * Set EEPROM to ignore write requests.
+     *
+     * @throws  FTDIException   C API call failed, see exception fields for
+     *                          details
+     */
+    public void writeDisable() throws FTDIException {
+        spi.transactWrite(wordSize.getCommandLength(), encodeLongOperation(OP_WRITE_DISABLE));  
+    }
+    
+    /**
+     * Set EEPROM to allow write requests.
+     *
+     * @throws  FTDIException   C API call failed, see exception fields for
+     *                          details
+     */
+    public void writeEnable() throws FTDIException {
+        spi.transactWrite(wordSize.getCommandLength(), encodeLongOperation(OP_WRITE_ENABLE));   
+    }
+    
+    /**
+     * The CAT93C46 can be organized into 8 or 16 bit words. This setting effects 
+     * the SPI command word lengths. 
+     */
+    private enum WordSize {
+        
+        W8(8, 10), W16(16, 9);
+        
+        /**
+         * Memory id organized into 8 ot 16 bit words.
+         */
+        private final int bits;
 
-		/** 
-		 * Command word lengths vary depending on the CAT93C46 organization. 
-		 * With an 8 bit word commands are 10 bits long, for 16 bit word commands 
-		 * are 9 bits long.
-		 */
-		private final int commandLength;
-		
-		private WordSize(int bits, int commandLength) {
-			this.bits = bits;
-			this.commandLength = commandLength;
-		}
-		
-		public int getBits() {
-			return bits;
-		}
-		
-		public int getCommandLength() {
-			return commandLength;
-		}
-	}
+        /** 
+         * Command word lengths vary depending on the CAT93C46 organization. 
+         * With an 8 bit word commands are 10 bits long, for 16 bit word commands 
+         * are 9 bits long.
+         */
+        private final int commandLength;
+        
+        private WordSize(int bits, int commandLength) {
+            this.bits = bits;
+            this.commandLength = commandLength;
+        }
+        
+        public int getBits() {
+            return bits;
+        }
+        
+        public int getCommandLength() {
+            return commandLength;
+        }
+    }
 }
