@@ -53,7 +53,7 @@
 							<directory>${env.JAVA_HOME}/include/linux</directory>
 						</source>
 						<source>
-							<directory>/opt/ftdi/current</directory>
+							<directory>../ftdi/linux/include</directory>
 						</source>
 					</sources>
 
@@ -64,7 +64,7 @@
 						<linkerStartOption>-shared</linkerStartOption>
 					</linkerStartOptions>
 					<linkerEndOptions>
-						<linkerStartOption>-lftd2xx -lft4222 -L/usr/local/lib</linkerStartOption>
+						<linkerStartOption>-lftd2xx -lft4222 -L../ftdi/linux/lib</linkerStartOption>
 					</linkerEndOptions>
 
 				</configuration>
