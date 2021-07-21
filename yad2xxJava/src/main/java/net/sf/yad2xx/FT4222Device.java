@@ -125,6 +125,7 @@ public class FT4222Device extends Device {
     /**
      * Get the versions of FT4222H and LibFT4222.
      *
+     * @return     API and library versions
      * @throws FTDIException
      *             API call failed, see exception fields for details. More
      *             information can be found in AN_329.
@@ -165,14 +166,14 @@ public class FT4222Device extends Device {
      * @param slaveAddress
      *            address of the target i2c slave
      * @param buffer
-     *            
+     *            array to recieve data into
      * @param bytesToRead
      *            max number of bytes to read from the device
      * @return sizeTransferred
      * @throws FTDIException
      *             API call failed, see exception fields for details.
      *             More information can be found in AN_329.
-     * @see FTDIInterface#i2cMasterRead(long, int, int)
+     * @see FTDIInterface#i2cMasterRead(long, int, byte[], int)
      * @since 2.1
      */
     public int i2cMasterRead(int slaveAddress, byte[] buffer, int bytesToRead) throws FTDIException {

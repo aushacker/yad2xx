@@ -210,6 +210,8 @@ public class Device {
 
     /**
      * Allow subclass access.
+     *
+     * @return                  the FTDI device handle
      */
     protected long getHandle() {
         return ftHandle;

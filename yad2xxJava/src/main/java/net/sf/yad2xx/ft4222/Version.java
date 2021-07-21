@@ -64,6 +64,8 @@ public final class Version {
 
     /**
      * Human readable dll version.
+     *
+     * @return DLL version
      */
     public String getLibraryVersion() {
         // dllVersion format 0x01040000
