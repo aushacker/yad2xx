@@ -26,8 +26,10 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-    - name: List files
-      run: ls yad2xxSo/target
+    - uses: actions/upload-artifact@v2
+      with:
+        name: 'Linux library'
+        path: yad2xxSo/target/libFTDIInterface.so
 
   buildMacOS:
 
@@ -50,11 +52,11 @@ jobs:
       run: mvn -B package --file pom.xml
     - uses: actions/upload-artifact@v2
       with:
-        name: libFTDIInterface.jnilib
+        name: 'macOS library'
         path: yad2xxJnilib/target/libFTDIInterface.jnilib
     - uses: actions/upload-artifact@v2
       with:
-        name: jar-files
+        name: 'Java JAR files'
         path: yad2xxJava/target/*.jar
 
   buildWindows:
@@ -77,5 +79,7 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-    - name: lib name
-      run: dir yad2xxDll\target
+    - uses: actions/upload-artifact@v2
+      with:
+        name: 'Windows library files'
+        path: yad2xxDll/target/FTDIInterface.*
