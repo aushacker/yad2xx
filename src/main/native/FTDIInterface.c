@@ -763,17 +763,20 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_read
     FT_STATUS ftStatus;
     DWORD     dwNumBytesToRead;
     DWORD     dwNumBytesRead;
-    jbyte     inBuff[buffLength];
+    jbyte *   readBuff;
 
     ftHandle = (FT_HANDLE) handle;
     dwNumBytesToRead = buffLength;
+    readBuff = (jbyte *) malloc(buffLength * sizeof(jbyte));
 
-    ftStatus = FT_Read(ftHandle, inBuff, dwNumBytesToRead, &dwNumBytesRead);
+    ftStatus = FT_Read(ftHandle, readBuff, dwNumBytesToRead, &dwNumBytesRead);
 
     if (ftStatus == FT_OK) {
-        (*env)->SetByteArrayRegion(env, buffer, 0, (jsize) dwNumBytesRead, inBuff);
+        (*env)->SetByteArrayRegion(env, buffer, 0, (jsize) dwNumBytesRead, readBuff);
+        free(readBuff);
         return dwNumBytesRead;
     } else {
+        free(readBuff);
         ThrowFTDIException(env, ftStatus, "FT_Read");
         return 0;
     }
@@ -1424,13 +1427,16 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_write
     FT_STATUS ftStatus;
     DWORD     dwByteCount;
     DWORD     dwBytesWritten;
-    jbyte     writeBuffer[buffLength];
+    jbyte *   writeBuffer;
 
     dwByteCount = (DWORD) buffLength;
     ftHandle = (FT_HANDLE) handle;
+    writeBuffer = (jbyte *) malloc(buffLength * sizeof(jbyte));
     (*env)->GetByteArrayRegion(env, buffer, 0, dwByteCount, writeBuffer);
 
     ftStatus = FT_Write(ftHandle, writeBuffer, (DWORD) buffLength, &dwBytesWritten);
+
+    free(writeBuffer);
 
     if (ftStatus == FT_OK) {
         return (jint) dwBytesWritten;
@@ -1630,15 +1636,19 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterRead
     FT_HANDLE ftHandle;
     FT_STATUS ftStatus;
     uint16_t  sizeTransferred;
-    jbyte     readBuffer[bytesToRead];
+    jbyte *   readBuffer;
 
     ftHandle = (FT_HANDLE) handle;
+    readBuffer = (jbyte *) malloc(bytesToRead * sizeof(jbyte));
+
     ftStatus = FT4222_I2CMaster_Read(ftHandle, slaveAddress, (uint8_t *) readBuffer, bytesToRead, &sizeTransferred);
 
     if (ftStatus == FT4222_OK) {
         (*env)->SetByteArrayRegion(env, buffer, 0, (jsize) sizeTransferred, readBuffer);
+        free(readBuffer);
         return sizeTransferred;
     } else {
+        free(readBuffer);
         ThrowFTDIException(env, ftStatus, "FT4222_I2CMaster_Read");
         return 0;
     }
@@ -1659,12 +1669,15 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_i2cMasterWrite
     FT_HANDLE ftHandle;
     FT_STATUS ftStatus;
     uint16_t  sizeTransferred;
-    jbyte     writeBuffer[bytesToWrite];
+    jbyte *   writeBuffer;
 
+    writeBuffer = (jbyte *) malloc(bytesToWrite * sizeof(jbyte));
     (*env)->GetByteArrayRegion(env, buffer, 0, bytesToWrite, writeBuffer);
 
     ftHandle = (FT_HANDLE) handle;
     ftStatus = FT4222_I2CMaster_Write(ftHandle, slaveAddress, (uint8_t *) writeBuffer, bytesToWrite, &sizeTransferred);
+
+    free(writeBuffer);
 
     if (ftStatus == FT4222_OK) {
         return sizeTransferred;

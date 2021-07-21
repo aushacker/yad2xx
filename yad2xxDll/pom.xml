@@ -42,10 +42,6 @@
 					</javahClassNames>
 					<javahVerbose>true</javahVerbose>
 					
-					<compilerStartOptions>
-						<compilerStartOption>/DLL</compilerStartOption>
-					</compilerStartOptions>
-
 					<sources>
 						<source>
 							<directory>../src/main/native</directory>
@@ -68,11 +64,11 @@
 					</sources>
 
 					<linkerStartOptions>
-						<linkerStartOption>/LIBPATH:../ftdi/windows/lib</linkerStartOption>
+						<linkerStartOption>/DLL /LIBPATH:../ftdi/windows/lib</linkerStartOption>
 					</linkerStartOptions>
 					<linkerEndOptions>
-                        <linkerEndOption>-lftd2xx</linkerEndOption>
-                        <linkerEndOption>-lLibFT4222-64</linkerEndOption>
+                        <linkerEndOption>ftd2xx.lib</linkerEndOption>
+                        <linkerEndOption>LibFT4222-64.lib</linkerEndOption>
 					</linkerEndOptions>
 
 				</configuration>
