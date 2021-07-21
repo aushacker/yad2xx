@@ -70,22 +70,22 @@ public class DmxSample extends AbstractSample {
 
     private Device device;
 
-	public DmxSample() {
-		running = true;
-		channels = new byte[CHANNEL_COUNT];
+    public DmxSample() {
+        running = true;
+        channels = new byte[CHANNEL_COUNT];
 
-		// Default setting is for a channels to be off/zero
-		for (int i = 0; i < CHANNEL_COUNT; i++) {
-			channels[i] = (byte) 0;
-		}
+        // Default setting is for a channels to be off/zero
+        for (int i = 0; i < CHANNEL_COUNT; i++) {
+            channels[i] = (byte) 0;
+        }
 
-		channels[1] = (byte) FULL_ON;  // Intensity/strobe channel
-		channels[2] = (byte) FULL_ON;  // RED channel
-	}
+        channels[1] = (byte) FULL_ON;  // Intensity/strobe channel
+        channels[2] = (byte) FULL_ON;  // RED channel
+    }
 
-	private void displayUsage() {
-		displayUsage("net.sf.yad2xx.samples.DmxSample [-h] [-p hex]");
-	}
+    private void displayUsage() {
+        displayUsage("net.sf.yad2xx.samples.DmxSample [-h] [-p hex]");
+    }
 
     public static void main(String[] args) {
         DmxSample dmx = new DmxSample();
