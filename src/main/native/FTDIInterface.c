@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if defined (_WIN32)
+#if defined(_WIN32)
 #include <windows.h>
 #endif
 
@@ -40,56 +40,63 @@
  *
  * Creates an FTDIException, sets the status and function name.
  */
-void ThrowFTDIException(JNIEnv * env, const jint ftStatus, const char * functionName) {
+void ThrowFTDIException(JNIEnv *env, const jint ftStatus, const char *functionName)
+{
 
     // Lookup exception class
     jclass exceptionCls = (*env)->FindClass(env, "net/sf/yad2xx/FTDIException");
-    if (exceptionCls == NULL) {
-        return;  // Exception thrown
+    if (exceptionCls == NULL)
+    {
+        return; // Exception thrown
     }
 
     // Lookup FTStatus class
     jclass statusCls = (*env)->FindClass(env, "net/sf/yad2xx/FTStatus");
-    if (statusCls == NULL) {
-        return;  // Exception thrown
+    if (statusCls == NULL)
+    {
+        return; // Exception thrown
     }
 
     // Get the FTStatus matching the ftStatus value
     jmethodID byOrdId = (*env)->GetStaticMethodID(env, statusCls, "byOrdinal", "(I)Lnet/sf/yad2xx/FTStatus;");
-    if (byOrdId == NULL) {
-        return;  // Exception thrown
+    if (byOrdId == NULL)
+    {
+        return; // Exception thrown
     }
 
     jobject status = (*env)->CallStaticObjectMethod(env, statusCls, byOrdId, ftStatus);
-    if (status == NULL) {
+    if (status == NULL)
+    {
         return;
     }
-    
-	// Get the constructor for FTDIException(FTDIStatus, String)
-	jmethodID cid = (*env)->GetMethodID(env, exceptionCls, "<init>", "(Lnet/sf/yad2xx/FTStatus;Ljava/lang/String;)V");
-	if (cid == NULL) {
-		return;  // Exception thrown
-	}
 
-	// Convert C string to Java
-	jstring jFuncName = (*env)->NewStringUTF(env, functionName);
-	if (jFuncName == NULL) {
-		return; // Exception thrown
-	}
+    // Get the constructor for FTDIException(FTDIStatus, String)
+    jmethodID cid = (*env)->GetMethodID(env, exceptionCls, "<init>", "(Lnet/sf/yad2xx/FTStatus;Ljava/lang/String;)V");
+    if (cid == NULL)
+    {
+        return; // Exception thrown
+    }
 
-	// Create and throw the exception
-	jthrowable theException = (*env)->NewObject(env, exceptionCls, cid, status, jFuncName);
-	if (theException != NULL) {
-		(*env)->Throw(env, theException);
-	}
+    // Convert C string to Java
+    jstring jFuncName = (*env)->NewStringUTF(env, functionName);
+    if (jFuncName == NULL)
+    {
+        return; // Exception thrown
+    }
+
+    // Create and throw the exception
+    jthrowable theException = (*env)->NewObject(env, exceptionCls, cid, status, jFuncName);
+    if (theException != NULL)
+    {
+        (*env)->Throw(env, theException);
+    }
 
     (*env)->DeleteLocalRef(env, status);
     (*env)->DeleteLocalRef(env, statusCls);
     (*env)->DeleteLocalRef(env, exceptionCls);
-	(*env)->DeleteLocalRef(env, jFuncName);
-	(*env)->DeleteLocalRef(env, theException);
+    (*env)->DeleteLocalRef(env, jFuncName);
+    (*env)->DeleteLocalRef(env, theException);
 }
-
 
 /*
  * Close an open device.
@@ -98,47 +105,50 @@ void ThrowFTDIException(JNIEnv * env, const jint ftStatus, const char * function
  * Method:    close
  * Signature: (Lnet/sf/yad2xx/Device;)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_close
-  (JNIEnv * env, jclass clsIFace, jobject device)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_close(JNIEnv *env, jclass clsIFace, jobject device)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	// Get Device.class
-	jclass deviceCls = (*env)->GetObjectClass(env, device);
-	if (deviceCls == NULL) {
-		return; // Exception thrown
-	}
+    // Get Device.class
+    jclass deviceCls = (*env)->GetObjectClass(env, device);
+    if (deviceCls == NULL)
+    {
+        return; // Exception thrown
+    }
 
-	// get device field ftHandle
-	jfieldID handleID = (*env)->GetFieldID(env, deviceCls, "ftHandle", "J");
-	if (handleID == NULL) {
-		return; // Exception thrown
-	}
-	ftHandle = (FT_HANDLE) (*env)->GetLongField(env, device, handleID);
+    // get device field ftHandle
+    jfieldID handleID = (*env)->GetFieldID(env, deviceCls, "ftHandle", "J");
+    if (handleID == NULL)
+    {
+        return; // Exception thrown
+    }
+    ftHandle = (FT_HANDLE)(*env)->GetLongField(env, device, handleID);
 
-	ftStatus = FT_Close(ftHandle);
+    ftStatus = FT_Close(ftHandle);
 
-	if (ftStatus == FT_OK) {
+    if (ftStatus == FT_OK)
+    {
 
-		// update device flags
-		jint flags;
-		jfieldID flagsID = (*env)->GetFieldID(env, deviceCls, "flags", "I");
-		if (flagsID == NULL) {
-			return; // Exception thrown
-		}
-		flags = (*env)->GetIntField(env, device, flagsID);
-		flags &= ~(FT_FLAGS_OPENED);
-		(*env)->SetIntField(env, device, flagsID, flags);
+        // update device flags
+        jint flags;
+        jfieldID flagsID = (*env)->GetFieldID(env, deviceCls, "flags", "I");
+        if (flagsID == NULL)
+        {
+            return; // Exception thrown
+        }
+        flags = (*env)->GetIntField(env, device, flagsID);
+        flags &= ~(FT_FLAGS_OPENED);
+        (*env)->SetIntField(env, device, flagsID, flags);
 
-		// update device handle
-		(*env)->SetLongField(env, device, handleID, 0);
-
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_Close");
-	}
+        // update device handle
+        (*env)->SetLongField(env, device, handleID, 0);
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_Close");
+    }
 }
-
 
 /*
  * This function clears the Data Terminal Ready (DTR) control signal.
@@ -147,23 +157,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_close
  * Method:    clrDtr
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_clrDtr
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_clrDtr(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_ClrDtr(ftHandle);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_ClrDtr(ftHandle);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_ClrDtr");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_ClrDtr");
+        return;
+    }
 }
-
 
 /*
  * This function clears the Request To Send (RTS) control signal.
@@ -172,23 +183,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_clrDtr
  * Method:    clrRts
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_clrRts
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_clrRts(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_ClrRts(ftHandle);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_ClrRts(ftHandle);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_ClrRts");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_ClrRts");
+        return;
+    }
 }
-
 
 /*
  * Sends a cycle command to the USB port.
@@ -199,29 +211,28 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_clrRts
  * Method:    cyclePort
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_cyclePort
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_cyclePort(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-#if defined (_WIN32)
+#if defined(_WIN32)
 
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_CyclePort(ftHandle);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_CyclePort(ftHandle);
 
-	if (ftStatus != FT_OK) {
-		ThrowFTDIException(env, ftStatus, "FT_CyclePort");
-	}
+    if (ftStatus != FT_OK)
+    {
+        ThrowFTDIException(env, ftStatus, "FT_CyclePort");
+    }
 
 #else
 
-	// Function is not defined on Linux or OS X platforms, no-op instead.
-	return;
+    // Function is not defined on Linux or OS X platforms, no-op instead.
+    return;
 
 #endif
 }
-
 
 /*
  * Erases the device EEPROM.
@@ -230,23 +241,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_cyclePort
  * Method:    eraseEE
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_eraseEE
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_eraseEE(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_EraseEE(ftHandle);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_EraseEE(ftHandle);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_EraseEE");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_EraseEE");
+        return;
+    }
 }
-
 
 /*
  * Returns the instantaneous value of the data bus.
@@ -255,24 +267,25 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_eraseEE
  * Method:    getBitMode
  * Signature: (J)B
  */
-JNIEXPORT jbyte JNICALL Java_net_sf_yad2xx_FTDIInterface_getBitMode
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT jbyte JNICALL Java_net_sf_yad2xx_FTDIInterface_getBitMode(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
-	UCHAR     BitMode;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    UCHAR BitMode;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_GetBitMode(ftHandle, &BitMode);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_GetBitMode(ftHandle, &BitMode);
 
-	if (ftStatus == FT_OK) {
-		return (jbyte)BitMode;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_GetBitMode");
-		return 0;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return (jbyte)BitMode;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_GetBitMode");
+        return 0;
+    }
 }
-
 
 /*
  * Returns the Windows COM port associated with a device. Returns -1 if no
@@ -282,24 +295,25 @@ JNIEXPORT jbyte JNICALL Java_net_sf_yad2xx_FTDIInterface_getBitMode
  * Method:    getComPortNumber
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_net_sf_yad2xx_FTDIInterface_getComPortNumber
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT jlong JNICALL Java_net_sf_yad2xx_FTDIInterface_getComPortNumber(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
-	LONG      lPortNumber;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    LONG lPortNumber;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_GetComPortNumber(ftHandle, &lPortNumber);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_GetComPortNumber(ftHandle, &lPortNumber);
 
-	if (ftStatus == FT_OK) {
-		return (jlong)lPortNumber;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_GetComPortNumber");
-		return 0;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return (jlong)lPortNumber;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_GetComPortNumber");
+        return 0;
+    }
 }
-
 
 /*
  * Returns the number of D2XX devices attached.
@@ -308,21 +322,22 @@ JNIEXPORT jlong JNICALL Java_net_sf_yad2xx_FTDIInterface_getComPortNumber
  * Method:    getDeviceCount
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getDeviceCount
-  (JNIEnv * env, jclass clsIFace)
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getDeviceCount(JNIEnv *env, jclass clsIFace)
 {
-	FT_STATUS ftStatus;
-	DWORD dwNumDevs;
+    FT_STATUS ftStatus;
+    DWORD dwNumDevs;
 
-	ftStatus = FT_CreateDeviceInfoList(&dwNumDevs);
-	if (ftStatus == FT_OK) {
-		return dwNumDevs;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_CreateDeviceInfoList");
-		return 0;
-	}
+    ftStatus = FT_CreateDeviceInfoList(&dwNumDevs);
+    if (ftStatus == FT_OK)
+    {
+        return dwNumDevs;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_CreateDeviceInfoList");
+        return 0;
+    }
 }
-
 
 /**
  * Combines FT_CreateDeviceInfoList and FT_GetDeviceInfoList.
@@ -333,53 +348,60 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getDeviceCount
  * Method:    getDevices
  * Signature: ()[Lnet/sf/yad2xx/Device;
  */
-JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
-  (JNIEnv * env, jclass clsIFace)
+JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices(JNIEnv *env, jclass clsIFace)
 {
-	FT_STATUS ftStatus;
-	DWORD dwNumDevs;
-    char * serialNumber;
-    char * description;
+    FT_STATUS ftStatus;
+    DWORD dwNumDevs;
+    char *serialNumber;
+    char *description;
     char sBuff[64];
     char dBuff[64];
-    
-	// How many devices are attached?
-	ftStatus = FT_CreateDeviceInfoList(&dwNumDevs);
-	if (ftStatus != FT_OK) {
-		ThrowFTDIException(env, ftStatus, "FT_CreateDeviceInfoList");
-		return NULL;
-	}
 
-	// Lookup Device.class
-	jclass deviceCls = (*env)->FindClass(env, "net/sf/yad2xx/Device");
-	if (deviceCls == NULL) {
-		return NULL;  // Exception thrown
-	}
+    // How many devices are attached?
+    ftStatus = FT_CreateDeviceInfoList(&dwNumDevs);
+    if (ftStatus != FT_OK)
+    {
+        ThrowFTDIException(env, ftStatus, "FT_CreateDeviceInfoList");
+        return NULL;
+    }
 
-	// Allocate an array to hold the correct number of attached Devices
-	jobjectArray devices = (*env)->NewObjectArray(env, dwNumDevs, deviceCls, NULL);
-	if (devices == NULL) {
-		return NULL;  // OutOfMemoryError thrown
-	}
+    // Lookup Device.class
+    jclass deviceCls = (*env)->FindClass(env, "net/sf/yad2xx/Device");
+    if (deviceCls == NULL)
+    {
+        return NULL; // Exception thrown
+    }
 
-	if (dwNumDevs > 0) {
-		// allocate storage for list based on numDevs
-		FT_DEVICE_LIST_INFO_NODE * devInfo = (FT_DEVICE_LIST_INFO_NODE*) malloc(sizeof(FT_DEVICE_LIST_INFO_NODE) * dwNumDevs);
+    // Allocate an array to hold the correct number of attached Devices
+    jobjectArray devices = (*env)->NewObjectArray(env, dwNumDevs, deviceCls, NULL);
+    if (devices == NULL)
+    {
+        return NULL; // OutOfMemoryError thrown
+    }
 
-		// get the device information list
-		ftStatus = FT_GetDeviceInfoList(devInfo, &dwNumDevs);
-		if (ftStatus == FT_OK) {
+    if (dwNumDevs > 0)
+    {
+        // allocate storage for list based on numDevs
+        FT_DEVICE_LIST_INFO_NODE *devInfo = (FT_DEVICE_LIST_INFO_NODE *)malloc(sizeof(FT_DEVICE_LIST_INFO_NODE) * dwNumDevs);
 
-			// Get the constructor for Device(int,int,int,int,int,String,String,long)
-			jmethodID cid = (*env)->GetMethodID(env, deviceCls, "<init>", "(IIIIILjava/lang/String;Ljava/lang/String;J)V");
-			if (cid == NULL) {
-				return NULL;  // Exception thrown
-			}
+        // get the device information list
+        ftStatus = FT_GetDeviceInfoList(devInfo, &dwNumDevs);
+        if (ftStatus == FT_OK)
+        {
 
-			DWORD i;
-			for (i = 0; i < dwNumDevs; i++) {
-			
-                if (devInfo[i].Flags & FT_FLAGS_OPENED) {
+            // Get the constructor for Device(int,int,int,int,int,String,String,long)
+            jmethodID cid = (*env)->GetMethodID(env, deviceCls, "<init>", "(IIIIILjava/lang/String;Ljava/lang/String;J)V");
+            if (cid == NULL)
+            {
+                return NULL; // Exception thrown
+            }
+
+            DWORD i;
+            for (i = 0; i < dwNumDevs; i++)
+            {
+
+                if (devInfo[i].Flags & FT_FLAGS_OPENED)
+                {
                     // Open devices have data missing in the DevInfoList structure,
                     // need to get these details from FT_ListDevices.
                     //
@@ -390,53 +412,58 @@ JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
                     //
                     ftStatus = FT_ListDevices((PVOID)i, sBuff, FT_LIST_BY_INDEX | FT_OPEN_BY_SERIAL_NUMBER);
                     serialNumber = sBuff;
-                    if (ftStatus != FT_OK) {
+                    if (ftStatus != FT_OK)
+                    {
                         sBuff[0] = 0;
                     }
                     ftStatus = FT_ListDevices((PVOID)i, dBuff, FT_LIST_BY_INDEX | FT_OPEN_BY_DESCRIPTION);
                     description = dBuff;
-                    if (ftStatus != FT_OK) {
+                    if (ftStatus != FT_OK)
+                    {
                         dBuff[0] = 0;
                     }
-                } else {
-                	// closed device
+                }
+                else
+                {
+                    // closed device
                     serialNumber = devInfo[i].SerialNumber;
                     description = devInfo[i].Description;
                 }
-                
-				// Convert C strings to Java
-				jstring jSerial = (*env)->NewStringUTF(env, serialNumber);
-				if (jSerial == NULL) {
-					return NULL; // Exception thrown
-				}
-				jstring jDesc = (*env)->NewStringUTF(env, description);
-				if (jDesc == NULL) {
-					return NULL; // Exception thrown
-				}
 
-				// Construct the Device
-				jobject device = (*env)->NewObject(env, deviceCls, cid, i, devInfo[i].Flags, devInfo[i].Type, devInfo[i].ID,
-						devInfo[i].LocId, jSerial, jDesc, devInfo[i].ftHandle);
-				if (device == NULL) {
-					return NULL; // Exception thrown
-				}
+                // Convert C strings to Java
+                jstring jSerial = (*env)->NewStringUTF(env, serialNumber);
+                if (jSerial == NULL)
+                {
+                    return NULL; // Exception thrown
+                }
+                jstring jDesc = (*env)->NewStringUTF(env, description);
+                if (jDesc == NULL)
+                {
+                    return NULL; // Exception thrown
+                }
 
-				// insert into result array
-				(*env)->SetObjectArrayElement(env, devices, i, device);
+                // Construct the Device
+                jobject device = (*env)->NewObject(env, deviceCls, cid, i, devInfo[i].Flags, devInfo[i].Type, devInfo[i].ID,
+                                                   devInfo[i].LocId, jSerial, jDesc, devInfo[i].ftHandle);
+                if (device == NULL)
+                {
+                    return NULL; // Exception thrown
+                }
 
-				(*env)->DeleteLocalRef(env, jSerial);
-				(*env)->DeleteLocalRef(env, jDesc);
-				(*env)->DeleteLocalRef(env, device);
-			}
+                // insert into result array
+                (*env)->SetObjectArrayElement(env, devices, i, device);
 
-		}
+                (*env)->DeleteLocalRef(env, jSerial);
+                (*env)->DeleteLocalRef(env, jDesc);
+                (*env)->DeleteLocalRef(env, device);
+            }
+        }
 
-		free(devInfo);
-	}
+        free(devInfo);
+    }
 
-	return devices;
+    return devices;
 }
-
 
 /*
  * Returns the D2XX driver version number.
@@ -445,24 +472,25 @@ JNIEXPORT jobjectArray JNICALL Java_net_sf_yad2xx_FTDIInterface_getDevices
  * Method:    getDriverVersionRaw
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getDriverVersionRaw
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getDriverVersionRaw(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
-	DWORD dwVersion;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    DWORD dwVersion;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_GetDriverVersion(ftHandle, &dwVersion);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_GetDriverVersion(ftHandle, &dwVersion);
 
-	if (ftStatus == FT_OK) {
-		return dwVersion;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_GetDriverVersion");
-		return 0;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return dwVersion;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_GetDriverVersion");
+        return 0;
+    }
 }
-
 
 /*
  * Get the current value of the latency timer.
@@ -471,24 +499,25 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getDriverVersionRaw
  * Method:    getLatencyTimer
  * Signature: (J)B
  */
-JNIEXPORT jbyte JNICALL Java_net_sf_yad2xx_FTDIInterface_getLatencyTimer
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT jbyte JNICALL Java_net_sf_yad2xx_FTDIInterface_getLatencyTimer(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
-	UCHAR LatencyTimer;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    UCHAR LatencyTimer;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_GetLatencyTimer(ftHandle, &LatencyTimer);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_GetLatencyTimer(ftHandle, &LatencyTimer);
 
-	if (ftStatus == FT_OK) {
-		return (jbyte)LatencyTimer;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_GetLatencyTimer");
-		return 0;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return (jbyte)LatencyTimer;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_GetLatencyTimer");
+        return 0;
+    }
 }
-
 
 /*
  * Returns the D2XX DLL version number.
@@ -497,21 +526,22 @@ JNIEXPORT jbyte JNICALL Java_net_sf_yad2xx_FTDIInterface_getLatencyTimer
  * Method:    getLibraryVersionInt
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getLibraryVersionInt
-  (JNIEnv * env, jclass clsIFace)
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getLibraryVersionInt(JNIEnv *env, jclass clsIFace)
 {
-	FT_STATUS ftStatus;
-	DWORD dwVersion;
+    FT_STATUS ftStatus;
+    DWORD dwVersion;
 
-	ftStatus = FT_GetLibraryVersion(&dwVersion);
-	if (ftStatus == FT_OK) {
-		return dwVersion;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_GetLibraryVersion");
-		return 0;
-	}
+    ftStatus = FT_GetLibraryVersion(&dwVersion);
+    if (ftStatus == FT_OK)
+    {
+        return dwVersion;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_GetLibraryVersion");
+        return 0;
+    }
 }
-
 
 /*
  * Gets the modem status and the line status from the device.
@@ -520,24 +550,25 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getLibraryVersionInt
  * Method:    getModemStatus
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getModemStatus
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getModemStatus(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
-	DWORD     dwModemStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    DWORD dwModemStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_GetModemStatus(ftHandle, &dwModemStatus);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_GetModemStatus(ftHandle, &dwModemStatus);
 
-	if (ftStatus == FT_OK) {
-		return dwModemStatus;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_GetModemStatus");
-		return 0;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return dwModemStatus;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_GetModemStatus");
+        return 0;
+    }
 }
-
 
 /*
  * Gets the number of bytes in the receive queue.
@@ -546,24 +577,25 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getModemStatus
  * Method:    getQueueStatus
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getQueueStatus
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getQueueStatus(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
-	DWORD     dwNumBytes;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    DWORD dwNumBytes;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_GetQueueStatus(ftHandle, &dwNumBytes);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_GetQueueStatus(ftHandle, &dwNumBytes);
 
-	if (ftStatus == FT_OK) {
-		return dwNumBytes;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_GetQueueStatus");
-		return 0;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return dwNumBytes;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_GetQueueStatus");
+        return 0;
+    }
 }
-
 
 /*
  * Gets the device status including number of characters in the receive queue,
@@ -573,40 +605,41 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_getQueueStatus
  * Method:    getStatus
  * Signature: (J)I
  */
-JNIEXPORT jobject JNICALL Java_net_sf_yad2xx_FTDIInterface_getStatus
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT jobject JNICALL Java_net_sf_yad2xx_FTDIInterface_getStatus(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
-	DWORD     rxCount, txCount, eventStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    DWORD rxCount, txCount, eventStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_GetStatus(ftHandle, &rxCount, &txCount, &eventStatus);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_GetStatus(ftHandle, &rxCount, &txCount, &eventStatus);
 
-	if (ftStatus != FT_OK) {
-		ThrowFTDIException(env, ftStatus, "FT_GetStatus");
-		return 0;
-	}
+    if (ftStatus != FT_OK)
+    {
+        ThrowFTDIException(env, ftStatus, "FT_GetStatus");
+        return 0;
+    }
 
     // Lookup DeviceStatus class
     jclass statusCls = (*env)->FindClass(env, "net/sf/yad2xx/DeviceStatus");
-    if (statusCls == NULL) {
-        return 0;  // Exception thrown
+    if (statusCls == NULL)
+    {
+        return 0; // Exception thrown
     }
 
-	// Get the constructor for DeviceStatus(long, long, long)
-	jmethodID cid = (*env)->GetMethodID(env, statusCls, "<init>", "(JJJ)V");
-	if (cid == NULL) {
-		return 0;  // Exception thrown
-	}
+    // Get the constructor for DeviceStatus(long, long, long)
+    jmethodID cid = (*env)->GetMethodID(env, statusCls, "<init>", "(JJJ)V");
+    if (cid == NULL)
+    {
+        return 0; // Exception thrown
+    }
 
-	jobject result = (*env)->NewObject(env, statusCls, cid, rxCount, txCount, eventStatus);
+    jobject result = (*env)->NewObject(env, statusCls, cid, rxCount, txCount, eventStatus);
 
-	(*env)->DeleteLocalRef(env, statusCls);
+    (*env)->DeleteLocalRef(env, statusCls);
 
-	return result;
+    return result;
 }
-
 
 /*
  * A command to retrieve the current VID and PID combination from within the
@@ -617,35 +650,35 @@ JNIEXPORT jobject JNICALL Java_net_sf_yad2xx_FTDIInterface_getStatus
  * Method:    getVidPidRaw
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_net_sf_yad2xx_FTDIInterface_getVidPidRaw
-  (JNIEnv * env, jclass clsIFace)
+JNIEXPORT jlong JNICALL Java_net_sf_yad2xx_FTDIInterface_getVidPidRaw(JNIEnv *env, jclass clsIFace)
 {
-	FT_STATUS	ftStatus;
-	DWORD		vid, pid;
-	jlong		result = 0;
+    FT_STATUS ftStatus;
+    DWORD vid, pid;
+    jlong result = 0;
 
 //
 // As of D2XX driver v2.12.24 function FT_GetVIDPID is not available on
 // the Windows platform.
 //
 #ifndef WIN32
-	ftStatus = FT_GetVIDPID(&vid, &pid);
-	if (ftStatus == FT_OK) {
-		result = pid;
-		result &= 0xFFFF;	// prevent sign extension
-		result |= (vid << 16);
-		result &= 0xFFFFFFFF; // ditto
-		return result;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_GetVIDPID");
-		return 0;
-	}
+    ftStatus = FT_GetVIDPID(&vid, &pid);
+    if (ftStatus == FT_OK)
+    {
+        result = pid;
+        result &= 0xFFFF; // prevent sign extension
+        result |= (vid << 16);
+        result &= 0xFFFFFFFF; // ditto
+        return result;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_GetVIDPID");
+        return 0;
+    }
 #else
     return 0;
 #endif
-
 }
-
 
 /*
  * Open the device and return a handle which will be used for subsequent accesses.
@@ -654,51 +687,55 @@ JNIEXPORT jlong JNICALL Java_net_sf_yad2xx_FTDIInterface_getVidPidRaw
  * Method:    open
  * Signature: (Lnet/sf/yad2xx/Device;)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_open
-  (JNIEnv * env, jclass clsIFace, jobject device)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_open(JNIEnv *env, jclass clsIFace, jobject device)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
-	DWORD dwDeviceIndex;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    DWORD dwDeviceIndex;
 
-	jclass deviceCls = (*env)->GetObjectClass(env, device);
-	if (deviceCls == NULL) {
-		return; // Exception thrown
-	}
+    jclass deviceCls = (*env)->GetObjectClass(env, device);
+    if (deviceCls == NULL)
+    {
+        return; // Exception thrown
+    }
 
-	// get device index
-	jfieldID indexID = (*env)->GetFieldID(env, deviceCls, "index", "I");
-	if (indexID == NULL) {
-		return; // Exception thrown
-	}
-	dwDeviceIndex = (*env)->GetIntField(env, device, indexID);
+    // get device index
+    jfieldID indexID = (*env)->GetFieldID(env, deviceCls, "index", "I");
+    if (indexID == NULL)
+    {
+        return; // Exception thrown
+    }
+    dwDeviceIndex = (*env)->GetIntField(env, device, indexID);
 
-	ftStatus = FT_Open(dwDeviceIndex, &ftHandle);
+    ftStatus = FT_Open(dwDeviceIndex, &ftHandle);
 
-	if (ftStatus == FT_OK) {
+    if (ftStatus == FT_OK)
+    {
 
-		// update device flags
-		jint flags;
-		jfieldID flagsID = (*env)->GetFieldID(env, deviceCls, "flags", "I");
-		if (flagsID == NULL) {
-			return; // Exception thrown
-		}
-		flags = (*env)->GetIntField(env, device, flagsID);
-		flags |= FT_FLAGS_OPENED;
-		(*env)->SetIntField(env, device, flagsID, flags);
+        // update device flags
+        jint flags;
+        jfieldID flagsID = (*env)->GetFieldID(env, deviceCls, "flags", "I");
+        if (flagsID == NULL)
+        {
+            return; // Exception thrown
+        }
+        flags = (*env)->GetIntField(env, device, flagsID);
+        flags |= FT_FLAGS_OPENED;
+        (*env)->SetIntField(env, device, flagsID, flags);
 
-		// update device handle
-		jfieldID handleID = (*env)->GetFieldID(env, deviceCls, "ftHandle", "J");
-		if (handleID == NULL) {
-			return; // Exception thrown
-		}
-		(*env)->SetLongField(env, device, handleID, (jlong) ftHandle);
-
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_Open");
-	}
+        // update device handle
+        jfieldID handleID = (*env)->GetFieldID(env, deviceCls, "ftHandle", "J");
+        if (handleID == NULL)
+        {
+            return; // Exception thrown
+        }
+        (*env)->SetLongField(env, device, handleID, (jlong)ftHandle);
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_Open");
+    }
 }
-
 
 /*
  * Purges receive and/or transmit buffers in the device.
@@ -707,23 +744,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_open
  * Method:    purge
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_purge
-  (JNIEnv * env, jclass clsIFace, jlong handle, jint mask)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_purge(JNIEnv *env, jclass clsIFace, jlong handle, jint mask)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_Purge(ftHandle, (DWORD) mask);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_Purge(ftHandle, (DWORD)mask);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_Purge");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_Purge");
+        return;
+    }
 }
-
 
 /*
  * Read data from the device.
@@ -732,30 +770,30 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_purge
  * Method:    read
  * Signature: (J[BI)I
  */
-JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_read
-  (JNIEnv * env, jclass clsIFace, jlong handle, jbyteArray buffer, jint buffLength)
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_read(JNIEnv *env, jclass clsIFace, jlong handle, jbyteArray buffer, jint buffLength)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
-	DWORD     dwNumBytesToRead;
-	DWORD     dwNumBytesRead;
-	jbyte     inBuff[buffLength];
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    DWORD dwNumBytesToRead;
+    DWORD dwNumBytesRead;
+    jbyte inBuff[buffLength];
 
-	ftHandle = (FT_HANDLE) handle;
-	dwNumBytesToRead = buffLength;
+    ftHandle = (FT_HANDLE)handle;
+    dwNumBytesToRead = buffLength;
 
-	ftStatus = FT_Read(ftHandle, inBuff, dwNumBytesToRead, &dwNumBytesRead);
+    ftStatus = FT_Read(ftHandle, inBuff, dwNumBytesToRead, &dwNumBytesRead);
 
-	if (ftStatus == FT_OK) {
-		(*env)->SetByteArrayRegion(env, buffer, 0, (jsize) dwNumBytesRead, inBuff);
-		return dwNumBytesRead;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_Read");
-		return 0;
-	}
-
+    if (ftStatus == FT_OK)
+    {
+        (*env)->SetByteArrayRegion(env, buffer, 0, (jsize)dwNumBytesRead, inBuff);
+        return dwNumBytesRead;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_Read");
+        return 0;
+    }
 }
-
 
 /*
  * Read EEPROM data.
@@ -764,27 +802,28 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_read
  * Method:    readEE
  * Signature: (JI)I
  */
-JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_readEE
-  (JNIEnv * env, jclass clsIFace, jlong handle, jint offset)
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_readEE(JNIEnv *env, jclass clsIFace, jlong handle, jint offset)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
-	DWORD     dwWordOffset;
-	WORD      wValue;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    DWORD dwWordOffset;
+    WORD wValue;
 
-	ftHandle = (FT_HANDLE) handle;
-	dwWordOffset = offset;
+    ftHandle = (FT_HANDLE)handle;
+    dwWordOffset = offset;
 
     ftStatus = FT_ReadEE(ftHandle, dwWordOffset, &wValue);
 
-	if (ftStatus == FT_OK) {
-		return wValue;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_ReadEE");
-		return 0;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return wValue;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_ReadEE");
+        return 0;
+    }
 }
-
 
 /*
  * Windows only.
@@ -799,27 +838,26 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_readEE
  * Method:    rescan
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_rescan
-  (JNIEnv * env, jclass clsIFace)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_rescan(JNIEnv *env, jclass clsIFace)
 {
-#if defined (_WIN32)
+#if defined(_WIN32)
 
-	FT_STATUS ftStatus;
+    FT_STATUS ftStatus;
 
-	ftStatus = FT_Rescan();
+    ftStatus = FT_Rescan();
 
-	if (ftStatus != FT_OK) {
-		ThrowFTDIException(env, ftStatus, "FT_Rescan");
-	}
+    if (ftStatus != FT_OK)
+    {
+        ThrowFTDIException(env, ftStatus, "FT_Rescan");
+    }
 
 #else
 
-	// Function is not defined on Linux or OS X platforms, no-op instead.
-	return;
+    // Function is not defined on Linux or OS X platforms, no-op instead.
+    return;
 
 #endif
 }
-
 
 /*
  * Windows only.
@@ -837,27 +875,26 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_rescan
  * Method:    reload
  * Signature: (II)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_reload
-  (JNIEnv * env, jclass clsIFace, jint vid, jint pid)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_reload(JNIEnv *env, jclass clsIFace, jint vid, jint pid)
 {
-#if defined (_WIN32)
+#if defined(_WIN32)
 
-	FT_STATUS ftStatus;
+    FT_STATUS ftStatus;
 
-	ftStatus = FT_Reload((WORD) vid, (WORD) pid);
+    ftStatus = FT_Reload((WORD)vid, (WORD)pid);
 
-	if (ftStatus != FT_OK) {
-		ThrowFTDIException(env, ftStatus, "FT_Reload");
-	}
+    if (ftStatus != FT_OK)
+    {
+        ThrowFTDIException(env, ftStatus, "FT_Reload");
+    }
 
 #else
 
-	// Function is not defined on Linux or OS X platforms, no-op instead.
-	return;
+    // Function is not defined on Linux or OS X platforms, no-op instead.
+    return;
 
 #endif
 }
-
 
 /*
  * Sends a reset command to the device.
@@ -866,20 +903,19 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_reload
  * Method:    reset
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_reset
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_reset(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_ResetDevice(ftHandle);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_ResetDevice(ftHandle);
 
-	if (ftStatus != FT_OK) {
-		ThrowFTDIException(env, ftStatus, "FT_ResetDevice");
-	}
+    if (ftStatus != FT_OK)
+    {
+        ThrowFTDIException(env, ftStatus, "FT_ResetDevice");
+    }
 }
-
 
 /*
  * Sends a reset command to the port.
@@ -890,29 +926,28 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_reset
  * Method:    resetPort
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_resetPort
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_resetPort(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-#if defined (_WIN32)
+#if defined(_WIN32)
 
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_ResetPort(ftHandle);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_ResetPort(ftHandle);
 
-	if (ftStatus != FT_OK) {
-		ThrowFTDIException(env, ftStatus, "FT_ResetPort");
-	}
+    if (ftStatus != FT_OK)
+    {
+        ThrowFTDIException(env, ftStatus, "FT_ResetPort");
+    }
 
 #else
 
-	// Function is not defined on Linux or OS X platforms, no-op instead.
-	return;
+    // Function is not defined on Linux or OS X platforms, no-op instead.
+    return;
 
 #endif
 }
-
 
 /*
  * Restarts the driver's IN task.
@@ -924,23 +959,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_resetPort
  * Method:    restartInTask
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_restartInTask
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_restartInTask(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_RestartInTask(ftHandle);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_RestartInTask(ftHandle);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_RestartInTask");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_RestartInTask");
+        return;
+    }
 }
-
 
 /*
  * Sets the baud rate for the device.
@@ -949,23 +985,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_restartInTask
  * Method:    setBaudRate
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setBaudRate
-  (JNIEnv * env, jclass clsIFace, jlong handle, jint baudRate)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setBaudRate(JNIEnv *env, jclass clsIFace, jlong handle, jint baudRate)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetBaudRate(ftHandle, (DWORD) baudRate);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetBaudRate(ftHandle, (DWORD)baudRate);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetBaudRate");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetBaudRate");
+        return;
+    }
 }
-
 
 /*
  * Enables different chip modes.
@@ -974,23 +1011,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setBaudRate
  * Method:    setBitMode
  * Signature: (JBB)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setBitMode
-  (JNIEnv * env, jclass clsIFace, jlong handle, jbyte mask, jbyte mode)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setBitMode(JNIEnv *env, jclass clsIFace, jlong handle, jbyte mask, jbyte mode)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetBitMode(ftHandle, mask, mode);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetBitMode(ftHandle, mask, mode);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetBitMode");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetBitMode");
+        return;
+    }
 }
-
 
 /*
  * Resets the BREAK condition of the device.
@@ -999,23 +1037,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setBitMode
  * Method:    setBreakOff
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setBreakOff
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setBreakOff(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetBreakOff(ftHandle);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetBreakOff(ftHandle);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetBreakOff");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetBreakOff");
+        return;
+    }
 }
-
 
 /*
  * Sets the BREAK condition of the device.
@@ -1024,23 +1063,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setBreakOff
  * Method:    setBreakOn
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setBreakOn
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setBreakOn(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetBreakOn(ftHandle);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetBreakOn(ftHandle);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetBreakOn");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetBreakOn");
+        return;
+    }
 }
-
 
 /*
  * Set special characters for the device.
@@ -1049,27 +1089,28 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setBreakOn
  * Method:    setChars
  * Signature: (JCZCZ)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setChars
-  (JNIEnv * env, jclass clsIFace, jlong handle, jchar event, jboolean eventEnable, jchar error, jboolean errorEnable)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setChars(JNIEnv *env, jclass clsIFace, jlong handle, jchar event, jboolean eventEnable, jchar error, jboolean errorEnable)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetChars(ftHandle,
-			event,
-			eventEnable ? 1 : 0,
-			error,
-			errorEnable ? 1 : 0);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetChars(ftHandle,
+                           event,
+                           eventEnable ? 1 : 0,
+                           error,
+                           errorEnable ? 1 : 0);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetChars");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetChars");
+        return;
+    }
 }
-
 
 /*
  * Set data characteristics for the device.
@@ -1078,26 +1119,27 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setChars
  * Method:    setDataCharacteristics
  * Signature: (JBBB)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setDataCharacteristics
-  (JNIEnv * env, jclass clsIFace, jlong handle, jbyte wordLength, jbyte stopBits, jbyte parity)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setDataCharacteristics(JNIEnv *env, jclass clsIFace, jlong handle, jbyte wordLength, jbyte stopBits, jbyte parity)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetDataCharacteristics(ftHandle,
-			(UCHAR) wordLength,
-			(UCHAR) stopBits,
-			(UCHAR) parity);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetDataCharacteristics(ftHandle,
+                                         (UCHAR)wordLength,
+                                         (UCHAR)stopBits,
+                                         (UCHAR)parity);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetDataCharacteristics");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetDataCharacteristics");
+        return;
+    }
 }
-
 
 /*
  * Sets the maximum time in milliseconds that a USB request can remain
@@ -1111,23 +1153,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setDataCharacteristics
  * Method:    setDeadmanTimeout
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setDeadmanTimeout
-  (JNIEnv * env, jclass clsIFace, jlong handle, jlong timeout)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setDeadmanTimeout(JNIEnv *env, jclass clsIFace, jlong handle, jlong timeout)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetDeadmanTimeout(ftHandle, (DWORD) timeout);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetDeadmanTimeout(ftHandle, (DWORD)timeout);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetDeadmanTimeout");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetDeadmanTimeout");
+        return;
+    }
 }
-
 
 /*
  * Sets the Data Terminal Ready (DTR) control signal.
@@ -1136,23 +1179,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setDeadmanTimeout
  * Method:    setDtr
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setDtr
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setDtr(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetDtr(ftHandle);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetDtr(ftHandle);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetDtr");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetDtr");
+        return;
+    }
 }
-
 
 /*
  * Sets flow control for the device.
@@ -1161,26 +1205,27 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setDtr
  * Method:    setFlowControl
  * Signature: (JSCC)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setFlowControl
-  (JNIEnv * env, jclass clsIFace, jlong handle, jshort flowControl, jchar xOn, jchar xOff)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setFlowControl(JNIEnv *env, jclass clsIFace, jlong handle, jshort flowControl, jchar xOn, jchar xOff)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetFlowControl(ftHandle,
-			(USHORT) flowControl,
-			(UCHAR) xOn,
-			(UCHAR) xOff);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetFlowControl(ftHandle,
+                                 (USHORT)flowControl,
+                                 (UCHAR)xOn,
+                                 (UCHAR)xOff);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetFlowControl");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetFlowControl");
+        return;
+    }
 }
-
 
 /*
  * Set the latency timer value.
@@ -1189,23 +1234,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setFlowControl
  * Method:    setLatencyTimer
  * Signature: (JB)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setLatencyTimer
-  (JNIEnv * env, jclass clsIFace, jlong handle, jbyte timer)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setLatencyTimer(JNIEnv *env, jclass clsIFace, jlong handle, jbyte timer)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetLatencyTimer(ftHandle, (UCHAR) timer);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetLatencyTimer(ftHandle, (UCHAR)timer);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetLatencyTimer");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetLatencyTimer");
+        return;
+    }
 }
-
 
 /*
  * Sets the ResetPipeRetryCount value.
@@ -1221,32 +1267,33 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setLatencyTimer
  * Method:    setResetPipeRetryCount
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setResetPipeRetryCount
-  (JNIEnv * env, jclass clsIFace, jlong handle, jlong count)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setResetPipeRetryCount(JNIEnv *env, jclass clsIFace, jlong handle, jlong count)
 {
-#if defined (_WIN32)
+#if defined(_WIN32)
 
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetResetPipeRetryCount(ftHandle, (DWORD) count);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetResetPipeRetryCount(ftHandle, (DWORD)count);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetResetPipeRetryCount");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetResetPipeRetryCount");
+        return;
+    }
 
 #else
 
-	// Function is not defined on Linux or OS X platforms, no-op instead.
-	return;
+    // Function is not defined on Linux or OS X platforms, no-op instead.
+    return;
 
 #endif
 }
-
 
 /*
  * Sets the Request To Send (RTS) control signal.
@@ -1255,23 +1302,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setResetPipeRetryCount
  * Method:    setRts
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setRts
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setRts(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetRts(ftHandle);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetRts(ftHandle);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetRts");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetRts");
+        return;
+    }
 }
-
 
 /*
  * This function sets the read and write timeouts for the device.
@@ -1280,23 +1328,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setRts
  * Method:    setTimeouts
  * Signature: (JII)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setTimeouts
-  (JNIEnv * env, jclass clsIFace, jlong handle, jint readTimeout, jint writeTimeout)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setTimeouts(JNIEnv *env, jclass clsIFace, jlong handle, jint readTimeout, jint writeTimeout)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetTimeouts(ftHandle, (DWORD) readTimeout, (DWORD) writeTimeout);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetTimeouts(ftHandle, (DWORD)readTimeout, (DWORD)writeTimeout);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetTimeouts");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetTimeouts");
+        return;
+    }
 }
-
 
 /*
  * Set the USB request transfer size.
@@ -1305,23 +1354,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setTimeouts
  * Method:    setUSBParameters
  * Signature: (JII)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setUSBParameters
-  (JNIEnv * env, jclass clsIFace, jlong handle, jint inTransferSize, jint outTransferSize)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setUSBParameters(JNIEnv *env, jclass clsIFace, jlong handle, jint inTransferSize, jint outTransferSize)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_SetUSBParameters(ftHandle, (DWORD) inTransferSize, (DWORD) outTransferSize);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_SetUSBParameters(ftHandle, (DWORD)inTransferSize, (DWORD)outTransferSize);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetUSBParameters");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetUSBParameters");
+        return;
+    }
 }
-
 
 /*
  * A command to include a custom VID and PID combination within the internal device list table.
@@ -1331,30 +1381,31 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setUSBParameters
  * Method:    setVidPid
  * Signature: (II)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setVidPid
-  (JNIEnv * env, jclass clsIFace, jint vid, jint pid)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setVidPid(JNIEnv *env, jclass clsIFace, jint vid, jint pid)
 {
-#if defined (_WIN32)
+#if defined(_WIN32)
 
-	// Function is not defined on Windows platform, no-op instead.
+    // Function is not defined on Windows platform, no-op instead.
 
-	return;
+    return;
 
 #else
 
-	FT_STATUS ftStatus;
+    FT_STATUS ftStatus;
 
-	ftStatus = FT_SetVIDPID(vid, pid);
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_SetVIDPID");
-		return;
-	}
+    ftStatus = FT_SetVIDPID(vid, pid);
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_SetVIDPID");
+        return;
+    }
 
 #endif
 }
-
 
 /*
  * Stops the driver's IN task.
@@ -1368,23 +1419,24 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_setVidPid
  * Method:    stopInTask
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_stopInTask
-  (JNIEnv * env, jclass clsIFace, jlong handle)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_stopInTask(JNIEnv *env, jclass clsIFace, jlong handle)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
-	ftStatus = FT_StopInTask(ftHandle);
+    ftHandle = (FT_HANDLE)handle;
+    ftStatus = FT_StopInTask(ftHandle);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_StopInTask");
-		return;
-	}
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_StopInTask");
+        return;
+    }
 }
-
 
 /*
  * Write data to the device.
@@ -1393,30 +1445,30 @@ JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_stopInTask
  * Method:    write
  * Signature: (J[BI)I
  */
-JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_write
-  (JNIEnv * env, jclass clsIFace, jlong handle, jbyteArray buffer, jint buffLength)
+JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_write(JNIEnv *env, jclass clsIFace, jlong handle, jbyteArray buffer, jint buffLength)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
-	DWORD     dwByteCount;
-	DWORD     dwBytesWritten;
-	jbyte     writeBuffer[buffLength];
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
+    DWORD dwByteCount;
+    DWORD dwBytesWritten;
+    jbyte writeBuffer[buffLength];
 
-	dwByteCount = (DWORD) buffLength;
-	ftHandle = (FT_HANDLE) handle;
-	(*env)->GetByteArrayRegion(env, buffer, 0, dwByteCount, writeBuffer);
+    dwByteCount = (DWORD)buffLength;
+    ftHandle = (FT_HANDLE)handle;
+    (*env)->GetByteArrayRegion(env, buffer, 0, dwByteCount, writeBuffer);
 
-	ftStatus = FT_Write(ftHandle, writeBuffer, (DWORD) buffLength, &dwBytesWritten);
+    ftStatus = FT_Write(ftHandle, writeBuffer, (DWORD)buffLength, &dwBytesWritten);
 
-	if (ftStatus == FT_OK) {
-		return (jint) dwBytesWritten;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_Write");
-		return 0;
-	}
-
+    if (ftStatus == FT_OK)
+    {
+        return (jint)dwBytesWritten;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_Write");
+        return 0;
+    }
 }
-
 
 /*
  * Write a value to an EEPROM location.
@@ -1425,21 +1477,22 @@ JNIEXPORT jint JNICALL Java_net_sf_yad2xx_FTDIInterface_write
  * Method:    writeEE
  * Signature: (JII)V
  */
-JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_writeEE
-  (JNIEnv * env, jclass clsIFace, jlong handle, jint offset, jint value)
+JNIEXPORT void JNICALL Java_net_sf_yad2xx_FTDIInterface_writeEE(JNIEnv *env, jclass clsIFace, jlong handle, jint offset, jint value)
 {
-	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
+    FT_HANDLE ftHandle;
+    FT_STATUS ftStatus;
 
-	ftHandle = (FT_HANDLE) handle;
+    ftHandle = (FT_HANDLE)handle;
 
-	ftStatus = FT_WriteEE(ftHandle, offset, value);
+    ftStatus = FT_WriteEE(ftHandle, offset, value);
 
-	if (ftStatus == FT_OK) {
-		return;
-	} else {
-		ThrowFTDIException(env, ftStatus, "FT_Write");
-		return;
-	}
-
+    if (ftStatus == FT_OK)
+    {
+        return;
+    }
+    else
+    {
+        ThrowFTDIException(env, ftStatus, "FT_Write");
+        return;
+    }
 }
